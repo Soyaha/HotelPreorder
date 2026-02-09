@@ -30,7 +30,7 @@ const PageHeader = () => {
           style={{
             fontFamily: 'Inter',
             fontWeight: 700,
-            fontSize: 16,
+            fontSize: 20,
             color: '#2577E3'
           }}
         >

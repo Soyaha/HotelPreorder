@@ -20,7 +20,7 @@ const TagItem = ({ text, selected }) => (
 )
 
 const options = [
-  { label: '有早餐', value: '1' },
+  { label: '宠物友好', value: '1' },
   { label: '免费停车场', value: '2' },
   { label: '亲子', value: '3' },
   { label: '豪华', value: '4' },
@@ -52,11 +52,8 @@ const FilterTagsSection = () => {
           options={options}
           multiple
           onChange={(arr, extend) => console.log(arr, extend.items)}
-          showCheckMark={false}
+          showCheckMark={true}
           style={{
-            '--checked-color': '#BACDED',
-            "--checked-text-color": '#000000',
-            '--color': '#eef1f6',
             '--border-radius': '7px'
           }}
         />
