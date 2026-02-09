@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
+import dayjs from 'dayjs'
 import { TabBar, NavBar, Button, Input, Card, Image, Tag } from 'antd-mobile'
 import {
     AppOutline,
@@ -19,8 +20,12 @@ import HotelList from './components/hotel/HotelList'
 import HotelDetail from './components/hotel/HotelDetail'
 import HotelMap from './components/hotel/HotelMap'
 
+export const SearchContext = React.createContext(null)
+
 const Home = () => {
     const navigate = useNavigate();
+    const { dateRange, setDateRange, guest, setGuest } = React.useContext(SearchContext);
+
     return (
         <div style={{ paddingBottom: 50, position: 'relative', background: '#EBEEF5', minHeight: '100vh', overflow: 'hidden' }}>
             <TopBanner />
@@ -47,10 +52,17 @@ const Home = () => {
 
                 }}>
                     <LocationSection />
-                    <DateSection />
-                    <RoomSection />
+                    <DateSection dateRange={dateRange} setDateRange={setDateRange} />
+                    <RoomSection
+                        rooms={guest.rooms}
+                        adults={guest.adults}
+                        children={guest.children}
+                        onGuestChange={setGuest}
+                    />
                     <FilterTagsSection />
-                    <div onClick={() => navigate('/list')}>
+                    <div onClick={() => {
+                        navigate('/list')
+                    }}>
                         <SearchButton />
                     </div>
                 </div>
@@ -112,9 +124,21 @@ function Layout() {
 }
 
 export default function App() {
+    const [dateRange, setDateRange] = useState([dayjs(), dayjs().add(1, 'day')]);
+    const [guest, setGuest] = useState({ rooms: 1, adults: 1, children: 0 });
+
+    const searchContextValue = useMemo(() => ({
+        dateRange,
+        setDateRange,
+        guest,
+        setGuest
+    }), [dateRange, guest]);
+
     return (
         <Router>
-            <Layout />
+            <SearchContext.Provider value={searchContextValue}>
+                <Layout />
+            </SearchContext.Provider>
         </Router>
     )
 }

@@ -1,26 +1,34 @@
 import React from 'react'
-import { Button } from 'antd-mobile'
+import { Image } from 'antd-mobile'
+import './HotelDetail.css'
 
 const RoomItem = ({ name, description, price }) => {
     return (
-        <div style={{ borderBottom: '1px solid #eee', padding: '10px 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div>
-                    <div style={{ fontWeight: 'bold' }}>{name}</div>
-                    <div style={{ fontSize: 12, color: '#999' }}>{description}</div>
-                </div>
-                <div style={{ color: '#ff4d4f', fontWeight: 'bold' }}>¥{price}</div>
+        <div className="room-card">
+            {/* Thumbnail - Placeholder color per design */}
+            <div className="room-image"></div>
+            
+            <div className="room-info">
+                <div className="room-name">{name}</div>
+                <div className="room-desc">{description}</div>
+                <div className="cancellation-policy">30分钟内免费取消</div>
             </div>
-            <Button size='small' color='primary' style={{ float: 'right', marginTop: 5 }}>预订</Button>
-            <div style={{ clear: 'both' }}></div>
+
+            <div className="room-price-action">
+                <div className="room-price">
+                    <span style={{ fontSize: 14 }}>￥</span>{price}
+                </div>
+                <button className="booking-btn">
+                    订
+                </button>
+            </div>
         </div>
     )
 }
 
 const RoomList = ({ rooms }) => {
     return (
-        <div style={{ marginTop: 10, background: '#fff', padding: 15 }}>
-            <h3>房型列表</h3>
+        <div className="room-list-container">
             {rooms && rooms.map(room => (
                 <RoomItem 
                     key={room.id}

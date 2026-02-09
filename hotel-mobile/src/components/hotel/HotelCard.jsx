@@ -1,5 +1,6 @@
 import React from 'react'
-import { Card, Image } from 'antd-mobile'
+import { Image } from 'antd-mobile'
+import './HotelList.css'
 
 const HotelCard = ({ hotel, onClick }) => {
     const { 
@@ -15,61 +16,57 @@ const HotelCard = ({ hotel, onClick }) => {
     } = hotel
 
     return (
-        <Card 
+        <div 
             onClick={onClick} 
-            style={{ borderRadius: 8, marginBottom: 10, border: 'none' }} 
-            bodyStyle={{ padding: 10 }}
+            className="hotel-card"
         >
-            <div style={{ display: 'flex', gap: 10 }}>
+            {/* HotelImage */}
+            <div className="hotel-image-container">
                 <Image 
                     src={image || ''} 
-                    width={100} 
-                    height={110} 
+                    width='100%' 
+                    height='100%' 
                     fit='cover'
-                    style={{ borderRadius: 4, background: '#f5f5f5', flexShrink: 0 }} 
                 />
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '2px 0' }}>
-                    
-                    {/* Title */}
-                    <div style={{ fontWeight: 'bold', fontSize: 16, color: '#333', lineHeight: 1.3 }}>{name}</div>
-                    
-                    {/* Score & Reviews */}
-                    <div style={{ display: 'flex', alignItems: 'center', marginTop: 4 }}>
-                        <span style={{ color: '#0086F6', fontWeight: 'bold', fontSize: 16 }}>{score}分</span>
-                        {scoreLabel && <span style={{ color: '#0086F6', fontSize: 13, marginLeft: 4, fontWeight: 500 }}>{scoreLabel}</span>}
-                        {reviews && <span style={{ fontSize: 12, color: '#999', marginLeft: 6 }}>{reviews}条点评</span>}
-                    </div>
+            </div>
 
-                    {/* Distance / Area */}
-                    <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
-                         {distance}
-                         {area && <div style={{ marginTop: 1 }}>{area}</div>}
-                    </div>
+            {/* HotelInfo */}
+            <div className="hotel-info-container">
+                
+                {/* HotelName */}
+                <div className="hotel-name">
+                    {name}
+                </div>
+                
+                {/* starIcon */}
+                <div className="hotel-stars">
+                     <span className="star-placeholder">⭐⭐⭐⭐⭐</span>
+                </div>
 
-                     {/* Promotion Tag / Price */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 4 }}>
-                         <div style={{ paddingBottom: 2 }}>
-                            {promotionTag && (
-                                <div style={{ 
-                                    color: '#FF6600', 
-                                    border: '1px solid #FF6600', 
-                                    fontSize: 10, 
-                                    padding: '1px 4px', 
-                                    borderRadius: 3,
-                                    display: 'inline-block' 
-                                }}>
-                                    {promotionTag}
-                                </div>
-                            )}
-                         </div>
-                         <div style={{ color: '#FF4D4F', fontWeight: 'bold', fontSize: 18, lineHeight: 1 }}>
-                            <span style={{ fontSize: 12 }}>¥</span>{price}
-                            <span style={{ fontSize: 12, color: '#999', fontWeight: 'normal', marginLeft: 2 }}>起</span>
-                         </div>
+                {/* RatingTag - Trip Blue */}
+                <div className="score-container">
+                    <div className="score-badge">
+                        {score}
+                    </div>
+                    <div className="score-label">
+                        {scoreLabel}
                     </div>
                 </div>
+
+                {/* LocationInfo */}
+                <div className="location-text">
+                    {area ? `近${area}` : distance}
+                </div>
+
+                {/* Price */}
+                <div className="price-container"> 
+                    <div className="price-text">
+                        ￥{price}<span className="price-unit">起</span>
+                    </div>
+                </div>
+
             </div>
-        </Card>
+        </div>
     )
 }
 

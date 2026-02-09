@@ -2,13 +2,9 @@ import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import CalendarPopup from './CalendarPopup';
 
-const DateSection = () => {
-  const today = dayjs();
-  const tomorrow = dayjs().add(1, 'day');
+const DateSection = ({ dateRange, setDateRange }) => {
 
   const [showCalendar, setShowCalendar] = useState(false);
-  // Default range: [dayjs Object, dayjs Object]
-  const [dateRange, setDateRange] = useState([today, tomorrow]);
 
   const onConfirm = (range) => {
     // Range is [dayjs, dayjs]

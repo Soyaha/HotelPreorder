@@ -1,77 +1,103 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LeftOutline, CloseCircleFill, EnvironmentOutline, MoreOutline } from 'antd-mobile-icons'
+import { LeftOutline, SearchOutline, CloseCircleFill } from 'antd-mobile-icons'
+import dayjs from 'dayjs'
+import CalendarPopup from '../home/CalendarPopup'
+import './HotelList.css'
 
-const HotelSearchHeader = ({ searchText, onSearchChange, onSearchClear }) => {
+const HotelSearchHeader = ({ searchText, onSearchChange, onSearchClear, initialDateRange, onDateChange }) => {
     const navigate = useNavigate();
 
+    // Date Logic
+    const today = dayjs();
+    const tomorrow = dayjs().add(1, 'day');
+    
+    // Parse initialDateRange 
+    const initRange = initialDateRange 
+        ? [dayjs(initialDateRange[0]), dayjs(initialDateRange[1])]
+        : [today, tomorrow];
+
+    const [showCalendar, setShowCalendar] = useState(false);
+    
+    // Use prop controlled date if onDateChange is present, otherwise local
+    const [localDateRange, setLocalDateRange] = useState(initRange);
+    
+    const dateRange = (onDateChange && initialDateRange) 
+        ? [dayjs(initialDateRange[0]), dayjs(initialDateRange[1])] 
+        : localDateRange;
+        
+    const onDateConfirm = (range) => {
+        if (range && range[0] && range[1]) {
+            if (onDateChange) {
+                onDateChange([range[0], range[1]]);
+            } else {
+                setLocalDateRange(range);
+            }
+        }
+        setShowCalendar(false);
+    }
+    
+    const startDate = dateRange[0];
+    const endDate = dateRange[1];
+
     return (
-        <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            padding: '8px 12px', 
-            gap: 10 
-        }}>
-            <LeftOutline fontSize={24} onClick={() => navigate(-1)} />
-            
-            {/* Search Bar */}
-            <div style={{ 
-                flex: 1, 
-                background: '#F5F6FA', 
-                borderRadius: 20, 
-                padding: '6px 12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                fontSize: 12
-            }}>
-                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2, borderRight: '1px solid #ddd', paddingRight: 8 }}>
-                    <div style={{ color: '#0086F6', fontWeight: 500 }}>
-                        <span style={{ marginRight: 4 }}>住 04-18</span>
-                    </div>
-                     <div style={{ color: '#0086F6', fontWeight: 500 }}>
-                        <span>离 04-21</span>
-                    </div>
+        <>
+            <div className="hotel-search-header">
+                {/* Back Button */}
+                <div 
+                    onClick={() => navigate(-1)}
+                    className="back-btn"
+                >
+                    <LeftOutline fontSize={24} color="#000" />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2, color: '#666', fontSize: 10, minWidth: 32 }}>
-                    <span>成人 2</span>
-                    <span>儿童 0</span>
+
+                {/* City */}
+                <div className="city-display">
+                    <span className="city-text">北京市</span>
                 </div>
-                 
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                     <input 
+
+                {/* Date */}
+                <div 
+                    onClick={() => setShowCalendar(true)}
+                    className="date-display"
+                >
+                    <span className="date-text">
+                        {startDate.format('MM-DD')}
+                    </span>
+                    <span className="date-text">
+                        {endDate.format('MM-DD')}
+                    </span>
+                </div>
+
+                {/* Search Interaction */}
+                <div className="search-area">
+                    <input 
+                        className="search-input"
+                        placeholder="位置/品牌/酒店"
                         value={searchText}
                         onChange={onSearchChange}
-                        style={{ 
-                            border: 'none', 
-                            background: 'transparent', 
-                            width: '100%', 
-                            outline: 'none',
-                            fontWeight: 'bold',
-                            color: '#333',
-                            fontSize: 14
-                        }}
-                     />
+                    />
+                    <div className="search-icon-container">
+                        {searchText ? (
+                             <CloseCircleFill 
+                                fontSize={16} 
+                                color="#ccc" 
+                                onClick={onSearchClear}
+                             />
+                        ) : (
+                             <SearchOutline fontSize={22} color="#333" />
+                        )}
+                    </div>
                 </div>
-                 {searchText && (
-                     <CloseCircleFill 
-                        fontSize={14} 
-                        color='#ccc' 
-                        onClick={onSearchClear}
-                     />
-                 )}
             </div>
 
-            {/* Right Icons */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }} onClick={() => navigate('/map')}>
-                <EnvironmentOutline fontSize={20} />
-                <span style={{ fontSize: 10, lineHeight: 1 }}>地图</span>
-            </div>
-             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                <MoreOutline fontSize={20} />
-                <span style={{ fontSize: 10, lineHeight: 1 }}>更多</span>
-            </div>
-        </div>
+            <CalendarPopup
+                visible={showCalendar}
+                onClose={() => setShowCalendar(false)}
+                onConfirm={onDateConfirm}
+                defaultDateRange={dateRange}
+            />
+        </>
     )
 }
 

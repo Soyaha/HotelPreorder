@@ -3,30 +3,43 @@ import HotelCard from "./HotelCard";
 import HotelSearchHeader from "./HotelSearchHeader";
 import HotelFilter from "./HotelFilter";
 import { useNavigate } from "react-router-dom";
+import { SearchContext } from '../../App'
+import './HotelList.css'
 
 const HotelList = () => {
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState('');
+    const { dateRange, setDateRange, guest } = React.useContext(SearchContext);
 
     return (
-        <div style={{ background: '#f5f5f5', minHeight: '100vh', paddingBottom: 60 }}>
-            {/* Custom Header */}
-            <div style={{ position: 'sticky', top: 0, zIndex: 100, background: '#fff' }}>
-                 <HotelSearchHeader 
-                    searchText={searchText}
-                    onSearchChange={(e) => setSearchText(e.target.value)}
-                    onSearchClear={() => setSearchText('')}
-                 />
+        <div className="hotel-list-page">
+            {/* Custom Header Floating Card */}
+            <div className="hotel-list-header-container">
+                <div className="hotel-list-header-card">
+                            <HotelSearchHeader 
+                        searchText={searchText}
+                        onSearchChange={(e) => setSearchText(e.target.value)}
+                        onSearchClear={() => setSearchText('')}
+                        initialDateRange={dateRange}
+                        onDateChange={setDateRange} 
+                     />
 
-                <HotelFilter />
+                    <HotelFilter />
+                </div>
             </div>
             
-            <div style={{ padding: 10 }}>
+            <div className="hotel-list-content">
                 {hotelData.map(hotel => (
                      <HotelCard 
                         key={hotel.id} 
                         hotel={hotel} 
-                        onClick={() => navigate(`/detail/${hotel.id}`, { state: { hotel } })} 
+                        onClick={() => navigate(`/detail/${hotel.id}`, { 
+                            state: { 
+                                hotel, 
+                                dateRange: dateRange.map(d => d.toISOString()),
+                                guest
+                            } 
+                        })} 
                      />
                 ))}
             </div>
@@ -104,5 +117,77 @@ const hotelData = [
             { id: 301, name: '高级大床房', description: '1张1.8米床 | 25m²', price: 260 },
             { id: 302, name: '家庭房', description: '1张大床+1张小床 | 35m²', price: 350 },
         ]
+    },
+    {
+
+        id: 4,
+        name: '上海外滩茂悦大酒店',
+        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+        score: '4.8',
+        scoreLabel: '超棒',
+        reviews: '4695',
+        distance: '距陆家嘴地铁站直线50米',
+        area: '陆家嘴',
+        price: '936',
+        promotionTag: '提供早餐',
+        tags: ['上海美景酒店榜 No.16'],
+        details: [
+            { label: '装修', value: '2020' },
+            { label: '风格', value: '中式' },
+            { label: '停车', value: '免费' },
+            { label: '视野', value: '江景' },
+        ],
+        rooms: [
+            { id: 401, name: '高级大床房', description: '1张1.8米床 | 25m²', price: 260 },
+            { id: 402, name: '家庭房', description: '1张大床+1张小床 | 35m²', price: 350 },
+        ]
+    },
+    {
+        id: 5,
+        name: '上海外滩茂悦大酒店',
+        image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+        score: '4.8',
+        scoreLabel: '超棒',
+        reviews: '4695',
+        distance: '距陆家嘴地铁站直线50米',
+        area: '陆家嘴',
+        price: '936',
+        promotionTag: '提供早餐',
+        tags: ['上海美景酒店榜 No.16'],
+        details: [
+            { label: '装修', value: '2020' },
+            { label: '风格', value: '中式' },
+            { label: '停车', value: '免费' },
+            { label: '视野', value: '江景' },
+        ],
+        rooms: [
+            { id: 501, name: '高级大床房', description: '1张1.8米床 | 25m²', price: 260 },
+            { id: 502, name: '家庭房', description: '1张大床+1张小床 | 35m²', price: 350 },
+        ]
+    },
+    {
+        id: 6,
+        name: '上海外滩茂悦大酒店',
+        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+
+        score: '4.8',
+        scoreLabel: '超棒',
+        reviews: '4695',
+        distance: '距陆家嘴地铁站直线50米',
+        area: '陆家嘴',
+        price: '936',
+        promotionTag: '提供早餐',
+        tags: ['上海美景酒店榜 No.16'],
+        details: [
+            { label: '装修', value: '2020' },
+            { label: '风格', value: '中式' },
+            { label: '停车', value: '免费' },
+            { label: '视野', value: '江景' },
+        ],
+        rooms: [
+            { id: 601, name: '高级大床房', description: '1张1.8米床 | 25m²', price: 260 },
+            { id: 602, name: '家庭房', description: '1张大床+1张小床 | 35m²', price: 350 },
+        ]
     }
+
 ]

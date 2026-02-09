@@ -1,20 +1,28 @@
 import React from 'react'
 import { Tag } from 'antd-mobile'
+import './HotelDetail.css'
 
-const HotelBasicInfo = ({ name, tags, details }) => {
+const HotelBasicInfo = ({ name, score, scoreLabel, tags, details, area }) => {
   return (
-    <div style={{ padding: 15, background: '#fff' }}>
-        <h2>{name}</h2>
-        <div>
-            {tags && tags.map((tag, index) => (
-                 <Tag color='gold' key={index} style={{ marginRight: 5 }}>{tag}</Tag>
-            ))}
+    <div className="hotel-info-card">
+        <div className="hotel-name-title">
+            <div className="hotel-cn-name">{name}</div>
+            {/* Stars can be added here if needed */}
         </div>
-        <div style={{ display: 'flex', margin: '15px 0', justifyContent: 'space-between', textAlign: 'center' }}>
+
+        <div className="hotel-score-section">
+            <div className="score-box">{score}</div>
+            <div className="score-text">{scoreLabel}</div>
+        </div>
+        <div className="hotel-score-section">
+            <div style={{ fontSize: 13, color: '#333', marginLeft:0 }}>近{area}</div>
+        </div>
+        {/* Details Grid corresponding to "2020年装修 | 中式风格..." */}
+        <div className="details-grid">
             {details && details.map((item, index) => (
-                <div key={index}>
-                    <div style={{ fontSize: 20 }}>{item.value}</div>
-                    <div style={{ fontSize: 12, color: '#999' }}>{item.label}</div>
+                <div key={index} className="detail-tag-item">
+                    {item.value}{item.label} 
+                    {/* Concatenating value+label (e.g. 2020 + 装修) to match design usually */}
                 </div>
             ))}
         </div>

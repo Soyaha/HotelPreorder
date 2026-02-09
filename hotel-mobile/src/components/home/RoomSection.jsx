@@ -13,13 +13,17 @@ const formatPriceStar = ({ priceRange, star }) => {
   return '价格/星级';
 };
 
-const RoomSection = () => {
+const RoomSection = ({ rooms, adults, children, onGuestChange }) => {
   const [guestVisible, setGuestVisible] = useState(false);
   const [priceVisible, setPriceVisible] = useState(false);
 
-  const [rooms, setRooms] = useState(1);
-  const [adults, setAdults] = useState(1);
-  const [children, setChildren] = useState(0);
+  const [localRooms, setLocalRooms] = useState(1);
+  const [localAdults, setLocalAdults] = useState(1);
+  const [localChildren, setLocalChildren] = useState(0);
+
+  const displayRooms = rooms ?? localRooms;
+  const displayAdults = adults ?? localAdults;
+  const displayChildren = children ?? localChildren;
 
   const [priceRange, setPriceRange] = useState(DEFAULT_PRICE_RANGE);
   const [pricePreset, setPricePreset] = useState(null);
@@ -54,9 +58,9 @@ const RoomSection = () => {
             onClick={() => setGuestVisible(true)}
             style={{ display: 'flex', gap: 10, alignItems: 'center', cursor: 'pointer' }}
           >
-            <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 20 }}>{rooms}间房</span>
-            <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 20 }}>{adults}成人</span>
-            <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 20 }}>{children}儿童</span>
+            <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 20 }}>{displayRooms}间房</span>
+            <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 20 }}>{displayAdults}成人</span>
+            <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 20 }}>{displayChildren}儿童</span>
             <RightOutline fontSize={12} style={{ transform: 'translateY(1px)' }} />
           </div>
 
@@ -74,11 +78,15 @@ const RoomSection = () => {
       <RoomGuestPopup
         visible={guestVisible}
         onClose={() => setGuestVisible(false)}
-        defaultValue={{ rooms, adults, children }}
+        defaultValue={{ rooms: displayRooms, adults: displayAdults, children: displayChildren }}
         onConfirm={({ rooms: r, adults: a, children: c }) => {
-          setRooms(r);
-          setAdults(a);
-          setChildren(c);
+          if (onGuestChange) {
+            onGuestChange({ rooms: r, adults: a, children: c });
+          } else {
+            setLocalRooms(r);
+            setLocalAdults(a);
+            setLocalChildren(c);
+          }
           setGuestVisible(false);
         }}
       />
