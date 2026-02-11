@@ -17,7 +17,7 @@ const SearchButton = () => {
         padding: '16px 0',
         width: '100%',
         background: '#2577E3',
-        borderRadius: '5px 5px 15px 5px',
+        borderRadius: '15px 15px 15px 15px',
         color: '#FFFFFF',
         fontFamily: 'Inter',
         fontWeight: 700,
