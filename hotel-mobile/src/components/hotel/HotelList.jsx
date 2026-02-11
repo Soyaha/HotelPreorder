@@ -137,6 +137,7 @@ const hotelData = [
             { label: '风格', value: '中式' },
             { label: '停车', value: '免费' },
             { label: '视野', value: '江景' },
+        
         ],
         rooms: [
             { id: 401, name: '高级大床房', description: '1张1.8米床 | 25m²', price: 260 },

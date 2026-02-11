@@ -262,20 +262,20 @@
     font-size: 20px;
     color: #000;
     margin-bottom: 8px;
-    margin-top: -4px;
 
 }
 
 .room-desc {
     font-size: 14px;
     color: #9D9D9D;
+    
 }
 
 .cancellation-policy {
     font-size: 14px;
     color: #52A88A;
-    margin-top: auto;
-    margin-bottom: 4px;
+    margin-top: auto; 
+    margin-bottom: 10px; 
 }
 
 .room-price-action {
@@ -286,27 +286,30 @@
 }
 
 .room-price {
+    
     font-family: 'Inter';
     font-weight: 700;
-    font-size: 20px;
+    font-size: 25px;
     color: #E83333; /* Red matches css/image */
-    margin-bottom: 1px;
-    margin-right: 9px;
+    margin-bottom: auto;
+    margin-top: auto;
+    margin-right: -4px;
 }
 
 .booking-btn {
     background: #E83333;
-    border-radius: 9px;
-    width: 43px;
-    height: 38px;
+    border-radius: 10px;
+    width: 48px;
+    height: 44px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-weight: 700;
-    font-size: 16px;
+    font-weight: 500;
+    font-size: 22px;
     border: none;
     cursor: pointer;
-    margin-bottom: 6px;
+    margin-bottom: auto;
+    margin-top: auto;
 }
