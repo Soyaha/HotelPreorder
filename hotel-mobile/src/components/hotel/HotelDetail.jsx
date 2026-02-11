@@ -131,18 +131,17 @@ const HotelDetail = () => {
                         <span className="date-val">{endDate.format('M月D日')}</span>
                         <span className="week-val">{getWeekday(endDate)}</span>
                     </div>
-                    <span style={{ fontSize: 16, color: '#999' }}> &gt; </span>
+                    
                  </div>
 
                  {/* Guest Selector */}
                  <div className="guest-selector-row" onClick={() => setShowGuestPopup(true)}>
-                     <div>{rooms}间房 {adults}成人 {children}儿童</div>
-                     <span style={{ fontSize: 16, color: '#999' }}> &gt; </span>
+                     <div>{rooms}间房 {adults}成人 {children}儿童
+                        <span style={{ fontSize: 18, color: '#000000',marginLeft: 16 }}> &gt; </span>
+                     </div>
+                     
                  </div>
-                
-
                 <FilterTagsSection/>
-
             </div>
            
             <RoomList rooms={hotelRooms} />

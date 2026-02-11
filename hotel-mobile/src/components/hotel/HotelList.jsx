@@ -93,6 +93,7 @@ const hotelData = [
         rooms: [
             { id: 201, name: '标准单人间', description: '1张1.5米床 | 30m²', price: 199 },
             { id: 202, name: '商务双床房', description: '2张1.2米床 | 45m²', price: 280 },
+            { id: 203, name: '家庭套房', description: '1张大床+1张沙发床 | 60m²', price: 450 },
         ]
     },
     {

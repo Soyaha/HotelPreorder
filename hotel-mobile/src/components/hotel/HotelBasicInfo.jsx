@@ -15,7 +15,7 @@ const HotelBasicInfo = ({ name, score, scoreLabel, tags, details, area }) => {
             <div className="score-text">{scoreLabel}</div>
         </div>
         <div className="hotel-score-section">
-            <div style={{ fontSize: 13, color: '#333', marginLeft:0 }}>近{area}</div>
+            <div style={{ fontSize: 13, color: '#333'}}>近{area}</div>
         </div>
         {/* Details Grid corresponding to "2020年装修 | 中式风格..." */}
         <div className="details-grid">

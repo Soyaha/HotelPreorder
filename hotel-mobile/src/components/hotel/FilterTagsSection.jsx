@@ -39,7 +39,7 @@ const FilterTagsSection = () => {
             display: flex;
             flex-wrap: nowrap !important; /* 强制不换行 */
             gap: 10px;
-            padding: 0 !important; /* 去掉默认padding，避免布局偏移 */
+            padding: 0!important; /* 去掉默认padding，避免布局偏移 */
             align-items: center; /* 垂直居中 */
             min-height: 36px; /* 固定高度，保证布局稳定 */
           }
