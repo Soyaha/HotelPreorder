@@ -261,6 +261,8 @@
     font-size: 20px;
     color: #000;
     margin-bottom: 8px;
+    margin-top: -4px;
+
 }
 
 .room-desc {
@@ -272,6 +274,7 @@
     font-size: 14px;
     color: #52A88A;
     margin-top: auto;
+    margin-bottom: 4px;
 }
 
 .room-price-action {
@@ -286,6 +289,8 @@
     font-weight: 700;
     font-size: 20px;
     color: #E83333; /* Red matches css/image */
+    margin-bottom: 1px;
+    margin-right: 9px;
 }
 
 .booking-btn {
@@ -302,4 +307,5 @@
     font-size: 16px;
     border: none;
     cursor: pointer;
+    margin-bottom: 6px;
 }
