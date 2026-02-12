@@ -11,7 +11,7 @@ const PricePopup = ({
   onClear,
   onConfirm,
   onClose,
-  topOffset = 98,
+  topOffset,
 }) => {
   return (
     <Popup

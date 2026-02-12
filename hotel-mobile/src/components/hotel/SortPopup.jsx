@@ -1,15 +1,17 @@
 import React from 'react'
 import { Popup } from 'antd-mobile'
 
-const SortPopup = ({ visible, sortValue, sortOptions, selectedSortLabel, onSelect, onClose, topOffset = 98 }) => {
+const FILTER_PANEL_TOP = 98
+
+const SortPopup = ({ visible, sortValue, sortOptions, selectedSortLabel, onSelect, onClose }) => {
   return (
     <Popup
       visible={visible}
       position="top"
       onMaskClick={onClose}
-      maskStyle={{ top: topOffset }}
+      maskStyle={{ top: FILTER_PANEL_TOP }}
       bodyStyle={{
-        marginTop: topOffset,
+        marginTop: FILTER_PANEL_TOP,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
       }}
@@ -25,7 +27,7 @@ const SortPopup = ({ visible, sortValue, sortOptions, selectedSortLabel, onSelec
             {sortValue === option.value && <span className="selected-check">√</span>}
           </div>
         ))}
-        <div className="current-sort-tip">当前：{selectedSortLabel}</div>
+        {/*<div className="current-sort-tip">当前：{selectedSortLabel}</div>*/}
       </div>
     </Popup>
   )

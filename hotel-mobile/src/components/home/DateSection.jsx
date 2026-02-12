@@ -29,6 +29,7 @@ const DateSection = ({ dateRange, setDateRange }) => {
     <>
       <div
         onClick={() => setShowCalendar(true)}
+        
         style={{
           display: 'flex',
           flexDirection: 'column',

@@ -20,18 +20,23 @@ const sortOptions = [
 ]
 
 const locationGroups = {
-  直线距离: ['天安门广场', '王府井', '景点3', '景点4', '景点5', '景点6', '景点7'],
-  景点: ['故宫博物院', '王府井', '南锣鼓巷', '天坛公园', '颐和园'],
-  地铁线: ['1号线', '2号线', '4号线', '10号线', '14号线'],
-  演出场馆: ['国家大剧院', '保利剧院', '梅兰芳大剧院', '北京展览馆剧场'],
+  直线距离: ['500米内', '1000米内', '2000米内', '5000米内'],
+  热门: ['天安门广场', '王府井', '朝阳区', '北京环球度假区', '三里屯', '故宫博物院', '天坛公园', '什刹海风景区'],
+  机场车站: ['北京大兴国际机场','北京首都国际机场','北京南站','北京朝阳站','北京西站','北京丰台站','北京站','清河站'],
+  演出场馆: ['鸟巢', '国家会议中心', '北京工人体育场', '北京天桥艺术中心', '国家大剧院', '北京国际会议中心', '北京展览馆', '天桥剧场'],
 }
 
 const pricePresetOptions = ['¥100以下', '¥100-150', '¥150-200', '¥200-250', '¥250-300', '¥300-500', '¥500-750', '¥750以上']
 const starOptions = ['2星及以下', '3星', '4星', '5星']
 
-const filterLeftTabs = ['热门筛选', '住宿类型', '品牌', '床型餐食', '点评', '设施服务']
+const filterLeftTabs = ['热门筛选', '住宿类型', '品牌', '床型', '餐食', '点评', '设施服务']
 
-const filterRightSections = [
+const filterSections = [
+  {
+    section: '住宿类型',
+    type: 'multi',
+    options: ['酒店', '民宿', '酒店公寓', '青年旅馆', '钟点房'],
+  },
   {
     section: '品牌',
     type: 'single',
@@ -55,23 +60,18 @@ const filterRightSections = [
   {
     section: '设施服务',
     type: 'multi',
-    options: ['可带宠物', '机场接送', '家庭友好', '禁止吸烟', '游泳池', '吸烟区'],
+    options: ['可带宠物', '禁止吸烟', '机场接送', '游泳池', '家庭友好', '吸烟区'],
   },
 ]
 
-const filterSectionsByTab = {
-  热门筛选: filterRightSections,
-  住宿类型: [
-    {
-      section: '住宿类型',
-      type: 'multi',
-      options: ['酒店', '民宿', '公寓', '青年旅舍', '度假村', '客栈'],
-    },
-  ],
-  品牌: filterRightSections,
-  床型餐食: filterRightSections.filter(item => item.section === '床型' || item.section === '餐食'),
-  点评: filterRightSections.filter(item => item.section === '点评'),
-  设施服务: filterRightSections.filter(item => item.section === '设施服务'),
+const quickLocateMap = {
+  热门筛选: '__TOP__',
+  住宿类型: '住宿类型',
+  品牌: '品牌',
+  床型: '床型',
+  餐食: '餐食',
+  点评: '点评',
+  设施服务: '设施服务',
 }
 
 export default function HotelFilter() {
@@ -79,10 +79,10 @@ export default function HotelFilter() {
   const [popupTopOffset, setPopupTopOffset] = useState(98)
   const [filterValues, setFilterValues] = useState({
     sort: 'score',
-    location: { group: '直线距离', option: '天安门广场' },
+    location: { group: '直线距离', option: '500米内' },
     price: {
-      priceRange: [100, 200],
-      pricePreset: '¥100-150',
+      priceRange: [0, 750],
+      pricePreset: '¥0-750',
       star: null,
     },
     filter: {
@@ -227,8 +227,6 @@ export default function HotelFilter() {
     [filterValues.sort],
   )
 
-  const visibleFilterSections = filterSectionsByTab[filterDraft.leftTab] || filterRightSections
-
   return (
     <>
       <div className="hotel-filter">
@@ -239,7 +237,7 @@ export default function HotelFilter() {
             onClick={() => handleFilterClick(item.key)}
           >
             <span>{item.label}</span>
-            <span className="filter-item-arrow">{activeFilter === item.key ? '▼' : '▶'}</span>
+            <span className={`filter-item-arrow ${activeFilter === item.key ? 'active' : ''}`}>{'▶'}</span>
           </div>
         ))}
       </div>
@@ -283,7 +281,8 @@ export default function HotelFilter() {
         filterDraft={filterDraft}
         setFilterDraft={setFilterDraft}
         filterLeftTabs={filterLeftTabs}
-        visibleFilterSections={visibleFilterSections}
+        filterSections={filterSections}
+        quickLocateMap={quickLocateMap}
         onSelectOption={updateFilterDraft}
         onClear={handleFilterClear}
         onConfirm={handleFilterConfirm}

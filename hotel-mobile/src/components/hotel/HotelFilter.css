@@ -2,9 +2,9 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 0 12px;
+	padding: 20px 12px 20px 12px;
 	height: 34px;
-	background: #FFFFFF;
+	background: #ffffff;
 	font-size: 14px;
 	color: #000;
 }
@@ -15,7 +15,7 @@
 	justify-content: center;
 	gap: 4px;
 	flex: 1;
-	background: #FFFFFF;
+	background: #ffffff;
 	border-radius: 5px;
 	height: 24px;
 	font-weight: 700;
@@ -25,10 +25,18 @@
 
 .filter-item.active {
 	color: #2577E3;
+
 }
 
 .filter-item-arrow {
 	font-size: 10px;
+    transition: transform 0.5s ease;
+
+}
+
+.filter-item-arrow.active {
+	font-size: 10px;
+    transform:rotate(90deg);
 }
 
 .filter-popup {
@@ -46,7 +54,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	font-size: 16px;
+	font-size: 20px;
 	font-weight: 700;
 	color: #111;
 }
@@ -62,9 +70,9 @@
 }
 
 .current-sort-tip {
-	padding: 2px 20px 10px;
+	padding: 10px 20px 10px ;
 	color: #7A7A7A;
-	font-size: 12px;
+	font-size: 14px;
 }
 
 .panel-popup {
@@ -80,19 +88,19 @@
 
 .panel-content {
 	display: flex;
-	min-height: 480px;
 	max-height: calc(100vh - 240px);
 	overflow: hidden;
 }
 
 .panel-left-tabs {
 	width: 28%;
-	background: #F1F3F7;
+	background: #edf1f9;
 	overflow-y: auto;
+    height: calc(56px * 7);
 }
 
 .left-tab {
-	font-size: 16px;
+	font-size: 18px;
 	font-weight: 700;
 	color: #111;
 	height: 56px;
@@ -121,7 +129,7 @@
 	align-items: center;
 	justify-content: space-between;
 	color: #4A4A4A;
-	font-size: 16px;
+	font-size: 17px;
 	font-weight: 700;
 	padding: 0 8px;
 }
@@ -132,7 +140,7 @@
 
 .price-content {
 	padding: 16px 18px 12px;
-	max-height: calc(100vh - 240px);
+	max-height: calc(70vh - 240px);
 	overflow-y: auto;
 }
 
@@ -161,6 +169,7 @@
 	background: #fff;
 	overflow-y: auto;
 	padding: 10px 14px;
+    height: calc(56px * 7);
 }
 
 .filter-section {

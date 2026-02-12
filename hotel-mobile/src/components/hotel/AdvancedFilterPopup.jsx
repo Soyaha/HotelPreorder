@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Popup } from 'antd-mobile'
 
 const AdvancedFilterPopup = ({
@@ -6,13 +6,34 @@ const AdvancedFilterPopup = ({
   filterDraft,
   setFilterDraft,
   filterLeftTabs,
-  visibleFilterSections,
+  filterSections,
+  quickLocateMap,
   onSelectOption,
   onClear,
   onConfirm,
   onClose,
-  topOffset = 98,
+  topOffset,
 }) =>{
+  const panelRightRef = useRef(null)
+  const sectionRefs = useRef({})
+
+  const handleSideTabClick = (tab) => {
+    setFilterDraft(prev => ({ ...prev, leftTab: tab }))
+
+    const target = quickLocateMap?.[tab]
+    if (!target) return
+
+    if (target === '__TOP__') {
+      panelRightRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
+    const sectionNode = sectionRefs.current[target]
+    if (sectionNode) {
+      sectionNode.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   return (
     <Popup
       visible={visible}
@@ -33,19 +54,26 @@ const AdvancedFilterPopup = ({
               <div
                 key={tab}
                 className={`left-tab ${filterDraft.leftTab === tab ? 'active' : ''}`}
-                onClick={() => setFilterDraft(prev => ({ ...prev, leftTab: tab }))}
+                onClick={() => handleSideTabClick(tab)}
               >
                 {tab}
               </div>
             ))}
           </div>
 
-          <div className="panel-right-filter">
-            {visibleFilterSections.map(section => (
-              <div key={section.section} className="filter-section">
+          <div className="panel-right-filter" ref={panelRightRef}>
+            {filterSections.map(section => (
+              <div
+                key={section.section}
+                className="filter-section"
+                ref={(node) => {
+                  if (node) {
+                    sectionRefs.current[section.section] = node
+                  }
+                }}
+              >
                 <div className="section-title-row">
                   <span className="section-title-text">{section.section}</span>
-                  {section.section === '品牌' && <span className="section-link">{'>'}</span>}
                 </div>
 
                 <div className="chip-grid three-col">
