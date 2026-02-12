@@ -88,7 +88,6 @@
 
 .panel-content {
 	display: flex;
-	max-height: calc(100vh - 240px);
 	overflow: hidden;
 }
 
@@ -96,7 +95,6 @@
 	width: 28%;
 	background: #edf1f9;
 	overflow-y: auto;
-    height: calc(56px * 7);
 }
 
 .left-tab {

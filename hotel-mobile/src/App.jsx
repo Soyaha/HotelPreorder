@@ -77,7 +77,10 @@ const Home = () => {
 
 
 
-const Me = () => <div style={{ padding: 20 }}><h2>我的账户</h2></div>
+const Me = () => <div style={{ padding: 20 }}>
+    <h2>我的账户</h2>
+    <p style={{fontSize: 15}}>页面建设中....</p>
+</div>
 
 function Layout() {
     const navigate = useNavigate()

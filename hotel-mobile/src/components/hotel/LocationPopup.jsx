@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Popup } from 'antd-mobile'
 
 const LocationPopup = ({
@@ -12,15 +12,39 @@ const LocationPopup = ({
   topOffset,
 }) => {
   const panelRightRef = useRef(null)
+  const leftTabsRef = useRef(null)
   const sectionRefs = useRef({})
   const locationTabs = Object.keys(locationGroups)
+  const [panelContentHeight, setPanelContentHeight] = useState(null)
+
+  useEffect(() => {
+    if (!visible || !leftTabsRef.current) return
+
+    const updateHeight = () => {
+      if (!leftTabsRef.current) return
+      const nextHeight = Math.round(leftTabsRef.current.getBoundingClientRect().height)
+      setPanelContentHeight(prev => (prev === nextHeight ? prev : nextHeight))
+    }
+
+    updateHeight()
+
+    const resizeObserver = new ResizeObserver(updateHeight)
+    resizeObserver.observe(leftTabsRef.current)
+
+    window.addEventListener('resize', updateHeight)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', updateHeight)
+    }
+  }, [visible, locationTabs.length])
 
   const handleSideTabClick = (group) => {
     setLocationDraft(prev => ({ ...prev, group }))
 
-    const targetNode = sectionRefs.current[group]
-    if (targetNode) {
-      targetNode.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const target = sectionRefs.current[group]
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
       return
     }
 
@@ -40,9 +64,9 @@ const LocationPopup = ({
         overflow: 'hidden',
       }}
     >
-      <div className="filter-popup panel-popup with-footer" style={{ maxHeight: `calc(100vh - ${topOffset + 22}px)` }}>
-        <div className="panel-content">
-          <div className="panel-left-tabs">
+      <div className="filter-popup panel-popup with-footer" >
+        <div className="panel-content" style={{ maxHeight: `calc(100vh - ${topOffset + 600}px)` }}>
+          <div className="panel-left-tabs" >
             {locationTabs.map(group => (
               <div
                 key={group}

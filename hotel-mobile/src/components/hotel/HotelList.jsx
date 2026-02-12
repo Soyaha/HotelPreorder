@@ -9,6 +9,7 @@ import './HotelList.css'
 const HotelList = () => {
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState('');
+    const [activePopup, setActivePopup] = useState(null);
     const { dateRange, setDateRange, guest } = React.useContext(SearchContext);
 
     return (
@@ -21,10 +22,15 @@ const HotelList = () => {
                         onSearchChange={(e) => setSearchText(e.target.value)}
                         onSearchClear={() => setSearchText('')}
                         initialDateRange={dateRange}
-                        onDateChange={setDateRange} 
+                        onDateChange={setDateRange}
+                        activePopup={activePopup}
+                        setActivePopup={setActivePopup}
                      />
 
-                    <HotelFilter />
+                    <HotelFilter
+                        activePopup={activePopup}
+                        setActivePopup={setActivePopup}
+                    />
                 </div>
             </div>
             

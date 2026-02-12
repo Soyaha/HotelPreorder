@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Popup } from 'antd-mobile'
 
 const AdvancedFilterPopup = ({
@@ -15,7 +15,31 @@ const AdvancedFilterPopup = ({
   topOffset,
 }) =>{
   const panelRightRef = useRef(null)
+  const leftTabsRef = useRef(null)
   const sectionRefs = useRef({})
+  const [panelContentHeight, setPanelContentHeight] = useState(null)
+
+  useEffect(() => {
+    if (!visible || !leftTabsRef.current) return
+
+    const updateHeight = () => {
+      if (!leftTabsRef.current) return
+      const nextHeight = Math.round(leftTabsRef.current.getBoundingClientRect().height)
+      setPanelContentHeight(prev => (prev === nextHeight ? prev : nextHeight))
+    }
+
+    updateHeight()
+
+    const resizeObserver = new ResizeObserver(updateHeight)
+    resizeObserver.observe(leftTabsRef.current)
+
+    window.addEventListener('resize', updateHeight)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', updateHeight)
+    }
+  }, [visible, filterLeftTabs.length])
 
   const handleSideTabClick = (tab) => {
     setFilterDraft(prev => ({ ...prev, leftTab: tab }))
@@ -47,9 +71,9 @@ const AdvancedFilterPopup = ({
         overflow: 'hidden',
       }}
     >
-      <div className="filter-popup panel-popup with-footer" style={{ maxHeight: `calc(100vh - ${topOffset + 22}px)` }}>
-        <div className="panel-content">
-          <div className="panel-left-tabs">
+      <div className="filter-popup panel-popup with-footer">
+        <div className="panel-content" style={{ maxHeight: panelContentHeight || undefined }}>
+          <div className="panel-left-tabs" ref={leftTabsRef}>
             {filterLeftTabs.map(tab => (
               <div
                 key={tab}

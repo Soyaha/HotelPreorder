@@ -74,8 +74,7 @@ const quickLocateMap = {
   设施服务: '设施服务',
 }
 
-export default function HotelFilter() {
-  const [activeFilter, setActiveFilter] = useState(null)
+export default function HotelFilter({ activePopup, setActivePopup }) {
   const [popupTopOffset, setPopupTopOffset] = useState(98)
   const [filterValues, setFilterValues] = useState({
     sort: 'score',
@@ -124,9 +123,11 @@ export default function HotelFilter() {
     }
   }, [])
 
+  const activeFilter = ['sort', 'location', 'price', 'filter'].includes(activePopup) ? activePopup : null
+
   const handleFilterClick = (key) => {
     if (activeFilter === key) {
-      setActiveFilter(null)
+      setActivePopup(null)
       return
     }
 
@@ -140,13 +141,13 @@ export default function HotelFilter() {
       setFilterDraft(filterValues.filter)
     }
 
-    setActiveFilter(key)
+    setActivePopup(key)
   }
 
   const handleSortSelect = (value) => {
     setFilterValues(prev => ({ ...prev, sort: value }))
     console.log('酒店筛选-排序', { sort: value })
-    setActiveFilter(null)
+    setActivePopup(null)
   }
 
   const handleLocationClear = () => {
@@ -156,7 +157,7 @@ export default function HotelFilter() {
   const handleLocationConfirm = () => {
     setFilterValues(prev => ({ ...prev, location: locationDraft }))
     console.log('酒店筛选-位置距离', locationDraft)
-    setActiveFilter(null)
+    setActivePopup(null)
   }
 
   const handlePricePresetClick = (preset) => {
@@ -186,7 +187,7 @@ export default function HotelFilter() {
   const handlePriceConfirm = () => {
     setFilterValues(prev => ({ ...prev, price: priceDraft }))
     console.log('酒店筛选-价格星级', priceDraft)
-    setActiveFilter(null)
+    setActivePopup(null)
   }
 
   const updateFilterDraft = (section, value, type) => {
@@ -219,7 +220,7 @@ export default function HotelFilter() {
   const handleFilterConfirm = () => {
     setFilterValues(prev => ({ ...prev, filter: filterDraft }))
     console.log('酒店筛选-筛选', filterDraft)
-    setActiveFilter(null)
+    setActivePopup(null)
   }
 
   const selectedSortLabel = useMemo(
@@ -248,7 +249,7 @@ export default function HotelFilter() {
         sortOptions={sortOptions}
         selectedSortLabel={selectedSortLabel}
         onSelect={handleSortSelect}
-        onClose={() => setActiveFilter(null)}
+        onClose={() => setActivePopup(null)}
         topOffset={popupTopOffset}
       />
 
@@ -259,7 +260,7 @@ export default function HotelFilter() {
         locationGroups={locationGroups}
         onClear={handleLocationClear}
         onConfirm={handleLocationConfirm}
-        onClose={() => setActiveFilter(null)}
+        onClose={() => setActivePopup(null)}
         topOffset={popupTopOffset}
       />
 
@@ -272,7 +273,7 @@ export default function HotelFilter() {
         onPresetClick={handlePricePresetClick}
         onClear={handlePriceClear}
         onConfirm={handlePriceConfirm}
-        onClose={() => setActiveFilter(null)}
+        onClose={() => setActivePopup(null)}
         topOffset={popupTopOffset}
       />
 
@@ -286,7 +287,7 @@ export default function HotelFilter() {
         onSelectOption={updateFilterDraft}
         onClear={handleFilterClear}
         onConfirm={handleFilterConfirm}
-        onClose={() => setActiveFilter(null)}
+        onClose={() => setActivePopup(null)}
         topOffset={popupTopOffset}
       />
     </>

@@ -1,11 +1,19 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LeftOutline, SearchOutline, CloseCircleFill } from 'antd-mobile-icons'
 import dayjs from 'dayjs'
-import CalendarPopup from '../home/CalendarPopup'
+import HotelDatePopup from './HotelDatePopup'
 import './HotelList.css'
 
-const HotelSearchHeader = ({ searchText, onSearchChange, onSearchClear, initialDateRange, onDateChange }) => {
+const HotelSearchHeader = ({
+    searchText,
+    onSearchChange,
+    onSearchClear,
+    initialDateRange,
+    onDateChange,
+    activePopup,
+    setActivePopup,
+}) => {
     const navigate = useNavigate();
 
     // Date Logic
@@ -17,7 +25,8 @@ const HotelSearchHeader = ({ searchText, onSearchChange, onSearchClear, initialD
         ? [dayjs(initialDateRange[0]), dayjs(initialDateRange[1])]
         : [today, tomorrow];
 
-    const [showCalendar, setShowCalendar] = useState(false);
+    const [popupTopOffset, setPopupTopOffset] = useState(98);
+    const headerRef = useRef(null);
     
     // Use prop controlled date if onDateChange is present, otherwise local
     const [localDateRange, setLocalDateRange] = useState(initRange);
@@ -34,15 +43,42 @@ const HotelSearchHeader = ({ searchText, onSearchChange, onSearchClear, initialD
                 setLocalDateRange(range);
             }
         }
-        setShowCalendar(false);
+        setActivePopup(null);
     }
     
     const startDate = dateRange[0];
     const endDate = dateRange[1];
 
+    useEffect(() => {
+        const updateOffset = () => {
+            if (!headerRef.current) return;
+            const next = Math.max(0, Math.round(headerRef.current.getBoundingClientRect().bottom));
+            setPopupTopOffset(prev => (prev === next ? prev : next));
+        };
+
+        updateOffset();
+
+        let resizeObserver = null;
+        if (headerRef.current && 'ResizeObserver' in window) {
+            resizeObserver = new ResizeObserver(updateOffset);
+            resizeObserver.observe(headerRef.current);
+        }
+
+        window.addEventListener('resize', updateOffset);
+        window.addEventListener('scroll', updateOffset, { passive: true });
+
+        return () => {
+            window.removeEventListener('resize', updateOffset);
+            window.removeEventListener('scroll', updateOffset);
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+        };
+    }, []);
+
     return (
         <>
-            <div className="hotel-search-header">
+            <div className="hotel-search-header" ref={headerRef}>
                 {/* Back Button */}
                 <div 
                     onClick={() => navigate(-1)}
@@ -58,7 +94,7 @@ const HotelSearchHeader = ({ searchText, onSearchChange, onSearchClear, initialD
 
                 {/* Date */}
                 <div 
-                    onClick={() => setShowCalendar(true)}
+                    onClick={() => setActivePopup(prev => (prev === 'date' ? null : 'date'))}
                     className="date-display"
                 >
                     <span className="date-text">
@@ -91,11 +127,12 @@ const HotelSearchHeader = ({ searchText, onSearchChange, onSearchClear, initialD
                 </div>
             </div>
 
-            <CalendarPopup
-                visible={showCalendar}
-                onClose={() => setShowCalendar(false)}
+            <HotelDatePopup
+                visible={activePopup === 'date'}
+                onClose={() => setActivePopup(null)}
                 onConfirm={onDateConfirm}
                 defaultDateRange={dateRange}
+                topOffset={popupTopOffset}
             />
         </>
     )
