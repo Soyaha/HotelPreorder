@@ -1,6 +1,11 @@
 import React from 'react';
 
-const SearchButton = () => {
+const SearchButton = ({ dateRange, setDateRange, guest }) => {
+
+  const SearchButtonClick = ({}) => {
+        
+        console.log('room booking info', { dateRange,setDateRange, guest })
+    }
   return (
     <div style={{
       display: 'flex',
@@ -23,7 +28,7 @@ const SearchButton = () => {
         fontWeight: 700,
         fontSize: 16,
         cursor: 'pointer'
-      }}>
+      }} onClick={SearchButtonClick}>
         查询
       </div>
     </div>

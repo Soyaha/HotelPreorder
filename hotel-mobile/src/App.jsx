@@ -63,7 +63,11 @@ const Home = () => {
                     <div onClick={() => {
                         navigate('/list')
                     }}>
-                        <SearchButton />
+                        <SearchButton 
+                        dateRange={dateRange}
+                        setDateRange={setDateRange}
+                        guest={guest}
+                        />
                     </div>
                 </div>
             </div>

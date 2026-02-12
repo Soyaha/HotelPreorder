@@ -2,7 +2,12 @@ import React from 'react'
 import { Image } from 'antd-mobile'
 import './HotelDetail.css'
 
-const RoomItem = ({ name, description, price }) => {
+const RoomItem = ({ name, description, price, roomid,hotel}) => {
+    const handleBookingClick = () => {
+        
+        console.log('room booking info', { name, description, price, roomid,hotelid: hotel.id })
+    }
+
     return (
         <div className="room-card">
             {/* Thumbnail - Placeholder color per design */}
@@ -18,7 +23,7 @@ const RoomItem = ({ name, description, price }) => {
                 <div className="room-price">
                     <span style={{ fontSize: 14 }}>￥</span>{price}
                 </div>
-                <button className="booking-btn">
+                <button className="booking-btn" onClick={handleBookingClick}>
                     订
                 </button>
             </div>
@@ -26,15 +31,17 @@ const RoomItem = ({ name, description, price }) => {
     )
 }
 
-const RoomList = ({ rooms }) => {
+const RoomList = ({ hotel }) => {
     return (
         <div className="room-list-container">
-            {rooms && rooms.map(room => (
+            {hotel.rooms && hotel.rooms.map(room => (
                 <RoomItem 
                     key={room.id}
                     name={room.name}
                     description={room.description}
                     price={room.price}
+                    roomid={room.id}
+                    hotel={hotel}
                 />
             ))}
         </div>

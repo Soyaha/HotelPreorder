@@ -144,7 +144,7 @@ const HotelDetail = () => {
                 <FilterTagsSection/>
             </div>
            
-            <RoomList rooms={hotelRooms} />
+            <RoomList hotel={hotel} />
 
             {/* Popups */}
             <CalendarPopup
