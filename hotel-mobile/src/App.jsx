@@ -16,8 +16,8 @@ import DateSection from './components/home/DateSection'
 import RoomSection from './components/home/RoomSection'
 import FilterTagsSection from './components/home/FilterTagsSection'
 import SearchButton from './components/home/SearchButton'
-import HotelList from './components/hotel/HotelList'
-import HotelDetail from './components/hotel/HotelDetail'
+import HotelList from './pages/HotelList'
+import HotelDetail from './pages/HotelDetail'
 import HotelMap from './components/hotel/HotelMap'
 
 export const SearchContext = React.createContext(null)

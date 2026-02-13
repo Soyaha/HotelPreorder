@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import HotelCard from "./HotelCard";
-import HotelSearchHeader from "./HotelSearchHeader";
-import HotelFilter from "./HotelFilter";
+import HotelCard from "../components/hotel/HotelCard";
+import HotelSearchHeader from "../components/hotel/HotelSearchHeader";
+import HotelFilter from "../components/hotel/HotelFilter";
 import { useNavigate } from "react-router-dom";
-import { SearchContext } from '../../App'
-import './HotelList.css'
+import { SearchContext } from '../App'
+import '../components/hotel/HotelList.css'
 
 const HotelList = () => {
     const navigate = useNavigate();
