@@ -97,7 +97,7 @@ const AdvancedFilterPopup = ({
                 }}
               >
                 <div className="section-title-row">
-                  <span className="section-title-text">{section.section}</span>
+                  <span className={`section-title-text ${filterDraft.leftTab === section.section ? 'select' : ''}`}>{section.section}</span>
                 </div>
 
                 <div className="chip-grid three-col">

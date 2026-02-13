@@ -102,23 +102,23 @@ const HotelDatePopup = ({ visible, onClose, onConfirm, defaultDateRange, topOffs
       onMaskClick={onClose}
       maskStyle={{ top: topOffset }}
       bodyStyle={{
-        marginTop: topOffset,
+        marginTop: topOffset+40,
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
         overflow: 'hidden',
       }}
     >
       <div style={{ maxHeight: `calc(100vh - ${topOffset + 16}px)`, display: 'flex', flexDirection: 'column', background: '#fff' }}>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', marginBottom: 10 }}>
-          <LeftOutline onClick={() => setCurrentMonth(currentMonth.subtract(1, 'month'))} />
-            <div style={{ fontSize: 18, fontWeight: 'bold' }}>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', marginBottom: 10 }}>
+            <LeftOutline onClick={() => setCurrentMonth(currentMonth.subtract(1, 'month'))} />
+              <div style={{ fontSize: 18, fontWeight: 'bold' }}>
                 {currentMonth.format('YYYY')}
                 <span>年 </span>
                 {currentMonth.format('M')}
                 <span>月</span>
-            </div>
-          <RightOutline onClick={() => setCurrentMonth(currentMonth.add(1, 'month'))} />
+              </div>
+            <RightOutline onClick={() => setCurrentMonth(currentMonth.add(1, 'month'))} />
         </div>       
         
         <div style={{ padding: '10px 12px 0', overflowY: 'auto', flex: 1 }}>

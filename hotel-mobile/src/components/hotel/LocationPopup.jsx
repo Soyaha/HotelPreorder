@@ -90,7 +90,7 @@ const LocationPopup = ({
                 }}
               >
                 <div className="section-title-row">
-                  <span className="section-title-text">{group}</span>
+                  <span className={`section-title-text ${locationDraft.group === group ? 'select' : ''}`}>{group}</span>
                 </div>
 
                 {locationGroups[group].map(option => (

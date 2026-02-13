@@ -29,7 +29,7 @@ const locationGroups = {
 const pricePresetOptions = ['¥100以下', '¥100-150', '¥150-200', '¥200-250', '¥250-300', '¥300-500', '¥500-750', '¥750以上']
 const starOptions = ['2星及以下', '3星', '4星', '5星']
 
-const filterLeftTabs = ['热门筛选', '住宿类型', '品牌', '床型', '餐食', '点评', '设施服务']
+const filterLeftTabs = ['住宿类型', '品牌', '床型', '餐食', '点评', '设施服务']
 
 const filterSections = [
   {
@@ -65,7 +65,6 @@ const filterSections = [
 ]
 
 const quickLocateMap = {
-  热门筛选: '__TOP__',
   住宿类型: '住宿类型',
   品牌: '品牌',
   床型: '床型',
