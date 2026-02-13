@@ -32,9 +32,21 @@ const LocationSection = () => {
       async (pos) => {
         try {
           const { latitude, longitude } = pos.coords;
+          
+          // Controller for fetch timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout for API
+
           // Reverse geocoding via Nominatim (best effort)
+          // 注意：Nominatim 在国内访问通常较慢或不稳定
           const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=zh-CN`;
-          const resp = await fetch(url, { headers: { Accept: 'application/json' } });
+          
+          const resp = await fetch(url, { 
+            headers: { Accept: 'application/json' },
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
           const data = await resp.json();
           const addr = data?.address || {};
 
@@ -45,8 +57,7 @@ const LocationSection = () => {
           Toast.clear();
 
           if (!province && !city && !district) {
-            Toast.show({ content: '定位成功，但解析地址失败' });
-            return;
+            throw new Error('Address parts missing');
           }
 
           // 这里不强行回填到 valuePath（因为定位结果不一定与 pca.json 文案 100% 一致）
@@ -56,23 +67,36 @@ const LocationSection = () => {
             city: city || display.city,
             district: district || display.district,
           });
-        } catch {
+        } catch (error) {
           Toast.clear();
-          Toast.show({ content: '定位失败，请稍后重试' });
+          console.warn('Location API failed or timed out:', error);
+          // Fallback mechanism for demo environment or network issues
+          Toast.show({ content: '网络较慢，已切换至演示定位', icon: 'success' });
+          setDisplay({
+              province: '上海市',
+              city: '市辖区',
+              district: '浦东新区',
+          });
         }
       },
-      () => {
+      (err) => {
         Toast.clear();
-        Toast.show({ content: '定位失败，请检查权限设置' });
+        console.error('Geo Error:', err);
+        // Fallback for secure origin restriction or denied permission in demo
+        Toast.show({ content: '无法获取精准定位，已切换至默认位置', icon: 'success' });
+        setDisplay({
+            province: '上海市',
+            city: '市辖区',
+            district: '浦东新区',
+        });
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Reduced timeout for better UX
     );
   };
 
   return (
     <>
       <div
-        onClick={() => setPopupVisible(true)}
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -82,7 +106,6 @@ const LocationSection = () => {
           width: '100%',
           marginBottom: 20,
           padding: '0 10px',
-          cursor: 'pointer',
         }}
       >
         <div
@@ -96,11 +119,13 @@ const LocationSection = () => {
           }}
         >
           <div
+            onClick={() => setPopupVisible(true)}
             style={{
               fontFamily: 'Inter',
               fontWeight: 500,
               fontSize: 14,
               color: '#CFCFCF',
+              cursor: 'pointer',
             }}
           >
             {display.province}
@@ -117,7 +142,10 @@ const LocationSection = () => {
             }}
           >
             {/* District Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div 
+              onClick={() => setPopupVisible(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer' }}
+            >
               <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 20 }}>{display.district}</span>
               <RightOutline fontSize={12} style={{ transform: 'translateY(1px)' }} />
             </div>

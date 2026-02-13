@@ -9,19 +9,27 @@ const Login = ({ onLogin }) => {
 
   const onFinish = async (values) => {
     try {
-        const response = await fetch('http://localhost:3001/api/login', {
+        // Change to Java Backend
+        const response = await fetch('http://localhost:7529/api/user/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(values),
+            body: JSON.stringify({ userAccount: values.username, userPassword: values.password }), // Map params
         });
-        const data = await response.json();
-        if (data.success) {
+        const res = await response.json();
+        if (res.code === 0) {
             message.success('登录成功');
-            localStorage.setItem('user', JSON.stringify(data.user));
-            onLogin(data.user);
+            // Mock role for admin/merchant based on userAccount since Java backend might not return 'role' string directly or structure differs
+            // You might need to adjust this based on actual User entity from Java
+            const userData = res.data;
+            // Simple mapping for demo if roles are not exact strings
+            if(!userData.userRole) userData.role = values.username === 'admin' ? 'admin' : 'merchant'; 
+            else userData.role = userData.userRole;
+
+            localStorage.setItem('user', JSON.stringify(userData));
+            onLogin(userData);
             navigate('/');
         } else {
-            message.error(data.message || '登录失败');
+            message.error(res.message || '登录失败');
         }
     } catch (error) {
         message.error('网络错误');

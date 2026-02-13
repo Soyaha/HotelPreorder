@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Popup, Cascader, Button } from 'antd-mobile';
+import { Popup, CascaderView, Button } from 'antd-mobile';
 import { CloseOutline } from 'antd-mobile-icons';
 
 const findPathLabels = (options, valuePath) => {
@@ -55,7 +55,7 @@ const CityPickerPopup = ({ visible, onClose, options, defaultValue, onConfirm })
       </div>
 
       <div style={{ padding: '0 12px', flex: 1, overflow: 'auto' }}>
-        <Cascader options={options} value={value} onChange={setValue} />
+        <CascaderView options={options} value={value} onChange={setValue} />
       </div>
 
       <div style={{ padding: 18, borderTop: '1px solid #eee', display: 'flex', gap: 12 }}>
