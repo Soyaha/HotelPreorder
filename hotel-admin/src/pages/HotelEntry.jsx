@@ -13,25 +13,21 @@ const HotelEntry = () => {
     const onFinish = async (values) => {
         setLoading(true);
         try {
-            const payload = { ...values, owner: user.username }; // user.id used in backend from session/cookie usually, but passing owner for ref
-            if (values.openDate) payload.createTime = values.openDate.format('YYYY-MM-DD HH:mm:ss');
-            // Convert array to json string for Java backend
-            if (Array.isArray(values.facilities)) payload.facilities = JSON.stringify(values.facilities);
-
-            const res = await fetch('http://localhost:7529/api/hotel/add', {
+            const payload = { ...values, owner: user.username }; 
+            // Simplified for Node server
+            const res = await fetch('http://localhost:3001/api/hotels', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    // 'Cookie': '...' // If session based, browser handles this on same domain or cors credentials
                 },
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
-            if(data.code === 0) {
+            if(data.success) {
                 message.success('提交成功，等待管理员审核');
                 form.resetFields();
             } else {
-                message.error('提交失败: ' + data.message);
+                message.error('提交失败: ' + (data.message || '未知错误'));
             }
         } catch (e) {
             message.error('网络错误');

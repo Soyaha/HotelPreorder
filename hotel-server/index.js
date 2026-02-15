@@ -65,7 +65,9 @@ app.post('/api/register', (req, res) => {
     if(users.find(u => u.username === username)) {
          return res.json({ success: false, message: 'User already exists' });
     }
-    users.push({ username, password, role: role || 'merchant', name: username });
+    // Ensure role is valid
+    const finalRole = ['admin', 'merchant'].includes(role) ? role : 'merchant';
+    users.push({ username, password, role: finalRole, name: username });
     res.json({ success: true, message: 'Register success' });
 });
 

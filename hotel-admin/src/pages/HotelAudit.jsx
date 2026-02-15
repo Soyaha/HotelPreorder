@@ -12,15 +12,16 @@ const HotelAudit = () => {
     const fetchHotels = async () => {
         setLoading(true);
         try {
-            // Fetch hotels based on role from Java backend
-            // For admin, it returns all. For merchant, logic is handled in backend using session or explicit param if we pass it.
-            // Currently passing userId explicitly to match previous logic logic though backend can handle it via session ideally.
-            let url = `http://localhost:7529/api/hotel/list?`;
-            if (user.role === 'merchant') url += `userId=${user.id}`; // Assuming user object has id
+            // Update to Node.js backend URL
+            let url = `http://localhost:3001/api/hotels?`;
+            if (user.role === 'merchant') url += `role=merchant&username=${user.username}`;
+            else url += `role=${user.role}`;
 
             const res = await fetch(url);
             const data = await res.json();
-            setHotels(Array.isArray(data.data) ? data.data : []);
+            // Node server returns array directly or { success: false } ? 
+            // Looking at index.js, it returns array directly for /api/hotels
+            setHotels(Array.isArray(data) ? data : []);
         } catch (e) {
             message.error('获取列表失败');
         }
@@ -33,13 +34,13 @@ const HotelAudit = () => {
 
     const handleStatus = async (id, status, reason = '') => {
         try {
-            const res = await fetch('http://localhost:7529/api/hotel/audit', {
+            const res = await fetch('http://localhost:3001/api/hotels/status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, status, reason })
             });
             const data = await res.json();
-            if(data.code === 0) {
+            if(data.success) {
                 message.success('操作成功');
                 fetchHotels();
                 setRejectModalOpen(false);
