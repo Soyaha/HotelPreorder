@@ -32,9 +32,11 @@ const RoomItem = ({ name, description, price, roomid,hotel}) => {
 }
 
 const RoomList = ({ hotel }) => {
+    const roomItems = Array.isArray(hotel?.rooms) ? hotel.rooms : []
+
     return (
         <div className="room-list-container">
-            {hotel.rooms && hotel.rooms.map(room => (
+            {roomItems.length > 0 ? roomItems.map(room => (
                 <RoomItem 
                     key={room.id}
                     name={room.name}
@@ -43,7 +45,11 @@ const RoomList = ({ hotel }) => {
                     roomid={room.id}
                     hotel={hotel}
                 />
-            ))}
+            )) : (
+                <div style={{ padding: '28px 0', textAlign: 'center', color: '#999', fontSize: 14 }}>
+                    当前酒店暂无可预订房型
+                </div>
+            )}
         </div>
     )
 }

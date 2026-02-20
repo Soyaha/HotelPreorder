@@ -24,7 +24,7 @@ export const SearchContext = React.createContext(null)
 
 const Home = () => {
     const navigate = useNavigate();
-    const { dateRange, setDateRange, guest, setGuest } = React.useContext(SearchContext);
+    const { dateRange, setDateRange, guest, setGuest, location, setLocation } = React.useContext(SearchContext);
 
     return (
         <div style={{ paddingBottom: 50, position: 'relative', background: '#EBEEF5', minHeight: '100vh', overflow: 'hidden' }}>
@@ -51,7 +51,7 @@ const Home = () => {
                     position: 'relative',
 
                 }}>
-                    <LocationSection />
+                    <LocationSection selectedLocation={location} onChange={setLocation} />
                     <DateSection dateRange={dateRange} setDateRange={setDateRange} />
                     <RoomSection
                         rooms={guest.rooms}
@@ -133,13 +133,21 @@ function Layout() {
 export default function App() {
     const [dateRange, setDateRange] = useState([dayjs(), dayjs().add(1, 'day')]);
     const [guest, setGuest] = useState({ rooms: 1, adults: 1, children: 0 });
+    const [location, setLocation] = useState({
+        province: '北京市',
+        city: '市辖区',
+        district: '朝阳区',
+        valuePath: ['北京市', '市辖区', '朝阳区'],
+    });
 
     const searchContextValue = useMemo(() => ({
         dateRange,
         setDateRange,
         guest,
-        setGuest
-    }), [dateRange, guest]);
+        setGuest,
+        location,
+        setLocation,
+    }), [dateRange, guest, location]);
 
     return (
         <Router>

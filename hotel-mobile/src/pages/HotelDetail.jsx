@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { NavBar } from 'antd-mobile'
 import dayjs from 'dayjs'
 import HotelBanner from '../components/hotel/HotelBanner'
@@ -11,10 +11,16 @@ import '../components/hotel/HotelDetail.css'
 import FilterTagsSection from '../components/hotel/FilterTagsSection'
 import { SearchContext } from '../App'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+
 const HotelDetail = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const hotel = location.state?.hotel;
+    const { id } = useParams();
+    const hotelFromState = location.state?.hotel;
+    const [hotel, setHotel] = useState(hotelFromState || null)
+    const [loading, setLoading] = useState(!hotelFromState)
+    const [error, setError] = useState('')
     const { dateRange: sharedDateRange, setDateRange: setSharedDateRange, guest: sharedGuest, setGuest: setSharedGuest } = React.useContext(SearchContext);
     
     // Date Logic - Retrieve from mock navigation or default
@@ -33,6 +39,36 @@ const HotelDetail = () => {
     const [adults, setAdults] = useState(initGuest.adults ?? 1);
     const [children, setChildren] = useState(initGuest.children ?? 0);
     const [showGuestPopup, setShowGuestPopup] = useState(false);
+
+    useEffect(() => {
+        const fetchHotelDetail = async () => {
+            if (!id) return
+
+            if (hotelFromState && Number(hotelFromState.id) === Number(id)) {
+                setHotel(hotelFromState)
+                setLoading(false)
+                setError('')
+                return
+            }
+
+            setLoading(true)
+            setError('')
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/hotels/${id}`)
+                const data = await response.json()
+                if (!response.ok || !data?.success || !data?.hotel) {
+                    throw new Error(data?.message || '获取酒店详情失败')
+                }
+                setHotel(data.hotel)
+            } catch (err) {
+                setError(err.message || '网络异常，请稍后重试')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchHotelDetail()
+    }, [id, hotelFromState])
 
 
 
@@ -69,12 +105,23 @@ const HotelDetail = () => {
         ];
     }, [hotel]);
 
-    if (!hotel) {
+    if (loading) {
         return (
             <div className="hotel-detail-page">
                  <NavBar onBack={() => navigate(-1)} style={{ color: '#000' }}>酒店详情</NavBar>
                  <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>
-                     未找到酒店信息，请从列表页进入
+                     酒店详情加载中...
+                 </div>
+            </div>
+        )
+    }
+
+    if (!hotel || error) {
+        return (
+            <div className="hotel-detail-page">
+                 <NavBar onBack={() => navigate(-1)} style={{ color: '#000' }}>酒店详情</NavBar>
+                 <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>
+                     {error || '未找到酒店信息，请从列表页进入'}
                  </div>
             </div>
         )

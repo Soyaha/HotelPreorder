@@ -13,6 +13,7 @@ const HotelSearchHeader = ({
     onDateChange,
     activePopup,
     setActivePopup,
+    cityText,
 }) => {
     const navigate = useNavigate();
 
@@ -89,7 +90,7 @@ const HotelSearchHeader = ({
 
                 {/* City */}
                 <div className="city-display">
-                    <span className="city-text">北京市</span>
+                    <span className="city-text">{cityText || '北京市'}</span>
                 </div>
 
                 {/* Date */}

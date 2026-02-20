@@ -4,19 +4,35 @@ import { Toast } from 'antd-mobile';
 import CityPickerPopup from './CityPickerPopup';
 import { buildPcaOptions } from '../../utils/pca-options';
 
-const LocationSection = () => {
+const DEFAULT_LOCATION = {
+  province: '北京市',
+  city: '市辖区',
+  district: '朝阳区',
+  valuePath: ['北京市', '市辖区', '朝阳区'],
+};
+
+const LocationSection = ({ selectedLocation = DEFAULT_LOCATION, onChange }) => {
   const options = useMemo(() => buildPcaOptions(), []);
 
   const [popupVisible, setPopupVisible] = useState(false);
   // valuePath: [provinceName, cityName, districtName]
-  const [valuePath, setValuePath] = useState(['北京市', '市辖区', '朝阳区']);
+  const [valuePath, setValuePath] = useState(selectedLocation.valuePath || DEFAULT_LOCATION.valuePath);
 
   // 显示值（允许被“定位”覆盖）
   const [display, setDisplay] = useState({
-    province: '北京市',
-    city: '市辖区',
-    district: '朝阳区',
+    province: selectedLocation.province || DEFAULT_LOCATION.province,
+    city: selectedLocation.city || DEFAULT_LOCATION.city,
+    district: selectedLocation.district || DEFAULT_LOCATION.district,
   });
+
+  React.useEffect(() => {
+    setValuePath(selectedLocation.valuePath || DEFAULT_LOCATION.valuePath);
+    setDisplay({
+      province: selectedLocation.province || DEFAULT_LOCATION.province,
+      city: selectedLocation.city || DEFAULT_LOCATION.city,
+      district: selectedLocation.district || DEFAULT_LOCATION.district,
+    });
+  }, [selectedLocation]);
 
   const onLocate = async (e) => {
     e.stopPropagation();
@@ -62,21 +78,27 @@ const LocationSection = () => {
 
           // 这里不强行回填到 valuePath（因为定位结果不一定与 pca.json 文案 100% 一致）
           // 仅更新展示文案。
-          setDisplay({
-            province: province || display.province,
-            city: city || display.city,
-            district: district || display.district,
+          setDisplay((prev) => {
+            const next = {
+              province: province || prev.province,
+              city: city || prev.city,
+              district: district || prev.district,
+            };
+            onChange?.({ ...next, valuePath });
+            return next;
           });
         } catch (error) {
           Toast.clear();
           console.warn('Location API failed or timed out:', error);
           // Fallback mechanism for demo environment or network issues
           Toast.show({ content: '网络较慢，已切换至演示定位', icon: 'success' });
-          setDisplay({
-              province: '上海市',
-              city: '市辖区',
-              district: '浦东新区',
-          });
+          const next = {
+            province: '上海市',
+            city: '市辖区',
+            district: '浦东新区',
+          };
+          setDisplay(next);
+          onChange?.({ ...next, valuePath });
         }
       },
       (err) => {
@@ -84,11 +106,13 @@ const LocationSection = () => {
         console.error('Geo Error:', err);
         // Fallback for secure origin restriction or denied permission in demo
         Toast.show({ content: '无法获取精准定位，已切换至默认位置', icon: 'success' });
-        setDisplay({
-            province: '上海市',
-            city: '市辖区',
-            district: '浦东新区',
-        });
+        const next = {
+          province: '上海市',
+          city: '市辖区',
+          district: '浦东新区',
+        };
+        setDisplay(next);
+        onChange?.({ ...next, valuePath });
       },
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Reduced timeout for better UX
     );
@@ -188,7 +212,9 @@ const LocationSection = () => {
           setValuePath(value);
           // labels: [province, city, district]
           const [province, city, district] = labels;
-          setDisplay({ province: province || '', city: city || '', district: district || '' });
+          const next = { province: province || '', city: city || '', district: district || '' };
+          setDisplay(next);
+          onChange?.({ ...next, valuePath: value });
           setPopupVisible(false);
         }}
       />
