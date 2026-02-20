@@ -16,6 +16,12 @@ const HotelList = () => {
     const [hotelData, setHotelData] = useState([])
     const [loading, setLoading] = useState(true)
     const [fetchError, setFetchError] = useState('')
+    const [activeFilters, setActiveFilters] = useState({
+        sort: 'score',
+        location: { group: '直线距离', option: null },
+        price: { priceRange: [0, 750], pricePreset: null, star: null },
+        filter: { leftTab: '品牌', selected: {} },
+    })
     const { dateRange, setDateRange, guest, location } = React.useContext(SearchContext);
 
     useEffect(() => {
@@ -43,14 +49,78 @@ const HotelList = () => {
     const filteredHotels = useMemo(() => {
         const keyword = searchText.trim().toLowerCase()
         const locationText = `${location?.province || ''} ${location?.city || ''} ${location?.district || ''}`.toLowerCase().trim()
-
-        return hotelData.filter((hotel) => {
+        const list = hotelData.filter((hotel) => {
             const text = `${hotel.name || ''} ${hotel.address || ''} ${hotel.area || ''}`.toLowerCase()
             const matchKeyword = !keyword || text.includes(keyword)
             const matchLocation = !locationText || text.includes(locationText) || text.includes((location?.district || '').toLowerCase()) || text.includes((location?.city || '').toLowerCase())
-            return matchKeyword && matchLocation
+            if (!matchKeyword || !matchLocation) return false
+
+            const selectedLocationOption = activeFilters.location?.option?.toLowerCase?.() || ''
+            if (selectedLocationOption && !text.includes(selectedLocationOption)) {
+                return false
+            }
+
+            const [minPrice, maxPrice] = activeFilters.price?.priceRange || [0, 999999]
+            const hotelPrice = Number(hotel.price || 0)
+            if (hotelPrice < minPrice || hotelPrice > maxPrice) {
+                return false
+            }
+
+            const starFilter = activeFilters.price?.star
+            const starMap = { '2星及以下': 2, '3星': 3, '4星': 4, '5星': 5 }
+            if (starFilter && Number(hotel.star || 0) !== starMap[starFilter]) {
+                return false
+            }
+
+            const selected = activeFilters.filter?.selected || {}
+
+            const ratingRule = (selected['点评'] || [])[0]
+            if (ratingRule) {
+                const threshold = Number(String(ratingRule).replace('分以上', ''))
+                if (!Number.isNaN(threshold) && Number(hotel.score || 0) < threshold) {
+                    return false
+                }
+            }
+
+            const brandRule = (selected['品牌'] || [])[0]
+            if (brandRule && !(hotel.name || '').includes(brandRule)) {
+                return false
+            }
+
+            const facilityRules = selected['设施服务'] || []
+            if (facilityRules.length > 0) {
+                const facilitiesText = `${(hotel.facilities || []).join(' ')} ${(hotel.description || '')}`
+                const passFacility = facilityRules.some((rule) => facilitiesText.includes(rule))
+                if (!passFacility) {
+                    return false
+                }
+            }
+
+            const bedRule = (selected['床型'] || [])[0]
+            if (bedRule) {
+                const roomText = (hotel.rooms || []).map((room) => `${room.name || ''} ${room.description || ''}`).join(' ')
+                if (!roomText.includes(bedRule)) {
+                    return false
+                }
+            }
+
+            return true
         })
-    }, [hotelData, searchText, location])
+
+        const sorted = [...list]
+        const sorter = activeFilters.sort
+        if (sorter === 'score') {
+            sorted.sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
+        } else if (sorter === 'star') {
+            sorted.sort((a, b) => Number(b.star || 0) - Number(a.star || 0))
+        } else if (sorter === 'price_asc') {
+            sorted.sort((a, b) => Number(a.price || 0) - Number(b.price || 0))
+        } else if (sorter === 'price_desc') {
+            sorted.sort((a, b) => Number(b.price || 0) - Number(a.price || 0))
+        }
+
+        return sorted
+    }, [hotelData, searchText, location, activeFilters])
 
     return (
         <div className="hotel-list-page">
@@ -71,6 +141,7 @@ const HotelList = () => {
                     <HotelFilter
                         activePopup={activePopup}
                         setActivePopup={setActivePopup}
+                        onFilterChange={setActiveFilters}
                     />
                 </div>
             </div>

@@ -2,15 +2,15 @@ import React from 'react';
 import { Selector } from 'antd-mobile'
 
 const options = [
-  { label: '双床房', value: '1' },
-  { label: '含早餐', value: '2' },
-  { label: '大床房', value: '3' },
-  { label: '家庭房', value: '4' },
-  { label: '免费取消', value: '5' },
-  { label: '套房', value: '6' },
+  { label: '双床房', value: 'twin' },
+  { label: '含早餐', value: 'breakfast' },
+  { label: '大床房', value: 'king' },
+  { label: '家庭房', value: 'family' },
+  { label: '免费取消', value: 'free_cancel' },
+  { label: '套房', value: 'suite' },
 ]
 
-const FilterTagsSection = () => {
+const FilterTagsSection = ({ value = [], onChange }) => {
   return (
     <div style={{
       width: '100%',
@@ -62,7 +62,8 @@ const FilterTagsSection = () => {
           className="horizontal-selector"
           options={options}
           multiple
-          onChange={(arr, extend) => console.log(arr, extend.items)}
+          value={value}
+          onChange={onChange}
           showCheckMark={false}
           // 去掉Selector默认的padding，避免影响布局
           style={{

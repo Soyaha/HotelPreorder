@@ -1,16 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Form, Input, Button, InputNumber, Select, DatePicker, message, Card, Space, Upload, Image } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const { TextArea } = Input;
 const { Option } = Select;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 const HotelEntry = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [imagePreview, setImagePreview] = useState('');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const editingHotel = location.state?.hotel || null;
+    const isEditMode = Boolean(editingHotel?.id);
+
+    useEffect(() => {
+        if (!editingHotel) {
+            form.resetFields();
+            setImagePreview('');
+            return;
+        }
+
+        form.setFieldsValue({
+            id: editingHotel.id,
+            name: editingHotel.name || '',
+            address: editingHotel.address || '',
+            area: editingHotel.area || '',
+            image: editingHotel.image || '',
+            star: editingHotel.star,
+            price: editingHotel.price,
+            facilities: Array.isArray(editingHotel.facilities) ? editingHotel.facilities : [],
+            tags: Array.isArray(editingHotel.tags) ? editingHotel.tags : [],
+            description: editingHotel.description || '',
+            rooms: Array.isArray(editingHotel.rooms) ? editingHotel.rooms : [],
+        });
+
+        setImagePreview(editingHotel.image || '');
+    }, [editingHotel, form]);
 
     const handleImageBeforeUpload = (file) => {
         const isImage = file.type.startsWith('image/');
@@ -39,6 +69,7 @@ const HotelEntry = () => {
             const payload = {
                 ...values,
                 owner: user.username,
+                id: isEditMode ? editingHotel.id : undefined,
                 openDate: values.openDate ? values.openDate.format('YYYY-MM-DD') : undefined,
                 image: values.image || '',
                 area: values.area || '',
@@ -56,9 +87,13 @@ const HotelEntry = () => {
             });
             const data = await res.json();
             if(data.success) {
-                message.success('提交成功，等待管理员审核');
-                form.resetFields();
-                setImagePreview('');
+                message.success(isEditMode ? '更新成功，已重新提交审核' : '提交成功，等待管理员审核');
+                if (isEditMode) {
+                    navigate('/my-hotels');
+                } else {
+                    form.resetFields();
+                    setImagePreview('');
+                }
             } else {
                 message.error('提交失败: ' + (data.message || '未知错误'));
             }
@@ -69,7 +104,7 @@ const HotelEntry = () => {
     };
 
     return (
-        <Card title="酒店信息录入 (商户端)">
+        <Card title={isEditMode ? '酒店信息编辑 (商户端)' : '酒店信息录入 (商户端)'}>
             <Form
                 form={form}
                 layout="vertical"
@@ -215,7 +250,7 @@ const HotelEntry = () => {
 
                 <Form.Item>
                     <Button type="primary" htmlType="submit" loading={loading}>
-                        保存并提交审核
+                        {isEditMode ? '更新并提交审核' : '保存并提交审核'}
                     </Button>
                 </Form.Item>
             </Form>

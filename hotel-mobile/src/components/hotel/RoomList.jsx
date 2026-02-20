@@ -31,8 +31,8 @@ const RoomItem = ({ name, description, price, roomid,hotel}) => {
     )
 }
 
-const RoomList = ({ hotel }) => {
-    const roomItems = Array.isArray(hotel?.rooms) ? hotel.rooms : []
+const RoomList = ({ hotel, rooms }) => {
+    const roomItems = Array.isArray(rooms) ? rooms : (Array.isArray(hotel?.rooms) ? hotel.rooms : [])
 
     return (
         <div className="room-list-container">

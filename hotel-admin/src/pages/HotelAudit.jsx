@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Tag, Button, Space, Modal, Input, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const HotelAudit = () => {
+    const navigate = useNavigate();
     const [hotels, setHotels] = useState([]);
     const [loading, setLoading] = useState(false);
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -87,7 +89,7 @@ const HotelAudit = () => {
                          <Button type="link" onClick={() => handleStatus(record.id, 'approved')}>重新上线</Button>
                     )}
                     {user.role === 'merchant' && (
-                        <Button type="link" disabled>编辑(暂未实现)</Button>
+                        <Button type="link" onClick={() => navigate('/entry', { state: { hotel: record } })}>编辑</Button>
                     )}
                 </Space>
             ),

@@ -134,10 +134,10 @@
     {
       "id": 3,
       "name": "test",
-      "address": "fakelocation",
+      "address": "徐汇区",
       "area": "",
       "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1740&q=80",
-      "price": 111,
+      "price": 233,
       "score": 0,
       "scoreLabel": "新开业",
       "star": 5,
@@ -181,7 +181,7 @@
         }
       ],
       "createdAt": "2026-02-20T13:17:27.255Z",
-      "updatedAt": "2026-02-20T13:18:08.017Z"
+      "updatedAt": "2026-02-20T14:56:49.668Z"
     },
     {
       "id": 4,
@@ -234,8 +234,416 @@
       ],
       "createdAt": "2026-02-20T14:27:14.045Z",
       "updatedAt": "2026-02-20T14:28:40.396Z"
+    },
+    {
+      "id": 5,
+      "name": "上海外滩璞悦酒店",
+      "address": "黄浦区中山东一路88号",
+      "area": "外滩",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1740&q=80",
+      "price": 899,
+      "score": 0,
+      "scoreLabel": "新开业",
+      "star": 5,
+      "status": "approved",
+      "description": "步行可达外滩观景平台，适合城市度假",
+      "tags": [
+        "上海",
+        "测试数据"
+      ],
+      "details": [
+        {
+          "value": "2025",
+          "label": "装修"
+        },
+        {
+          "value": "现代简约",
+          "label": "风格"
+        },
+        {
+          "value": "24小时前台",
+          "label": "服务"
+        }
+      ],
+      "facilities": [
+        "WIFI",
+        "健身房",
+        "停车场"
+      ],
+      "owner": "merchant",
+      "rooms": [
+        {
+          "price": 899,
+          "description": "1张2米大床 | 45m²",
+          "name": "豪华江景大床房"
+        },
+        {
+          "price": 959,
+          "description": "2张1.2米床 | 40m²",
+          "name": "尊享双床房"
+        }
+      ],
+      "createdAt": "2026-02-20T15:02:53.374Z",
+      "updatedAt": "2026-02-20T15:06:50.006Z"
+    },
+    {
+      "id": 6,
+      "name": "上海静安嘉庭酒店",
+      "address": "静安区南京西路1288号",
+      "area": "静安寺",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1740&q=80",
+      "price": 688,
+      "score": 0,
+      "scoreLabel": "新开业",
+      "star": 4,
+      "status": "approved",
+      "description": "商圈核心地段，购物出行便利",
+      "tags": [
+        "上海",
+        "测试数据"
+      ],
+      "details": [
+        {
+          "value": "2025",
+          "label": "装修"
+        },
+        {
+          "value": "现代简约",
+          "label": "风格"
+        },
+        {
+          "value": "24小时前台",
+          "label": "服务"
+        }
+      ],
+      "facilities": [
+        "WIFI",
+        "健身房",
+        "停车场"
+      ],
+      "owner": "merchant",
+      "rooms": [
+        {
+          "price": 688,
+          "description": "1张1.8米床 | 32m²",
+          "name": "商务大床房"
+        },
+        {
+          "price": 748,
+          "description": "2张1.2米床 | 35m²",
+          "name": "高级双床房"
+        }
+      ],
+      "createdAt": "2026-02-20T15:02:53.397Z",
+      "updatedAt": "2026-02-20T15:06:50.010Z"
+    },
+    {
+      "id": 7,
+      "name": "上海徐汇滨江轻居酒店",
+      "address": "徐汇区龙腾大道166号",
+      "area": "徐汇",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1740&q=80",
+      "price": 458,
+      "score": 0,
+      "scoreLabel": "新开业",
+      "star": 4,
+      "status": "approved",
+      "description": "近西岸美术馆，文艺氛围浓厚",
+      "tags": [
+        "上海",
+        "测试数据"
+      ],
+      "details": [
+        {
+          "value": "2025",
+          "label": "装修"
+        },
+        {
+          "value": "现代简约",
+          "label": "风格"
+        },
+        {
+          "value": "24小时前台",
+          "label": "服务"
+        }
+      ],
+      "facilities": [
+        "WIFI",
+        "健身房",
+        "停车场"
+      ],
+      "owner": "merchant",
+      "rooms": [
+        {
+          "price": 458,
+          "description": "1张1.8米床 | 28m²",
+          "name": "精选大床房"
+        },
+        {
+          "price": 518,
+          "description": "1张1.8米床+1张1.2米床 | 36m²",
+          "name": "家庭亲子房"
+        }
+      ],
+      "createdAt": "2026-02-20T15:02:53.402Z",
+      "updatedAt": "2026-02-20T15:06:50.013Z"
+    },
+    {
+      "id": 8,
+      "name": "上海虹桥会展智选酒店",
+      "address": "闵行区申虹路369号",
+      "area": "虹桥",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1740&q=80",
+      "price": 399,
+      "score": 0,
+      "scoreLabel": "新开业",
+      "star": 3,
+      "status": "approved",
+      "description": "靠近虹桥枢纽与国家会展中心",
+      "tags": [
+        "上海",
+        "测试数据"
+      ],
+      "details": [
+        {
+          "value": "2025",
+          "label": "装修"
+        },
+        {
+          "value": "现代简约",
+          "label": "风格"
+        },
+        {
+          "value": "24小时前台",
+          "label": "服务"
+        }
+      ],
+      "facilities": [
+        "WIFI",
+        "健身房",
+        "停车场"
+      ],
+      "owner": "merchant",
+      "rooms": [
+        {
+          "price": 399,
+          "description": "1张1.8米床 | 25m²",
+          "name": "标准大床房"
+        },
+        {
+          "price": 459,
+          "description": "2张1.2米床 | 27m²",
+          "name": "标准双床房"
+        }
+      ],
+      "createdAt": "2026-02-20T15:02:53.406Z",
+      "updatedAt": "2026-02-20T15:06:50.017Z"
+    },
+    {
+      "id": 9,
+      "name": "上海浦东张江雅致酒店",
+      "address": "浦东新区张江路777号",
+      "area": "浦东新区",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1740&q=80",
+      "price": 529,
+      "score": 0,
+      "scoreLabel": "新开业",
+      "star": 4,
+      "status": "approved",
+      "description": "近张江高科园区，商务出差首选",
+      "tags": [
+        "上海",
+        "测试数据"
+      ],
+      "details": [
+        {
+          "value": "2025",
+          "label": "装修"
+        },
+        {
+          "value": "现代简约",
+          "label": "风格"
+        },
+        {
+          "value": "24小时前台",
+          "label": "服务"
+        }
+      ],
+      "facilities": [
+        "WIFI",
+        "健身房",
+        "停车场"
+      ],
+      "owner": "merchant",
+      "rooms": [
+        {
+          "price": 529,
+          "description": "1张1.8米床 | 30m²",
+          "name": "雅致大床房"
+        },
+        {
+          "price": 589,
+          "description": "2张1.2米床 | 33m²",
+          "name": "雅致双床房"
+        }
+      ],
+      "createdAt": "2026-02-20T15:02:53.409Z",
+      "updatedAt": "2026-02-20T15:06:50.021Z"
+    },
+    {
+      "id": 10,
+      "name": "上海迪士尼度假亲子酒店",
+      "address": "浦东新区川沙新镇川图路520号",
+      "area": "川沙",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1740&q=80",
+      "price": 799,
+      "score": 0,
+      "scoreLabel": "新开业",
+      "star": 5,
+      "status": "approved",
+      "description": "提供亲子活动与迪士尼接驳",
+      "tags": [
+        "上海",
+        "测试数据"
+      ],
+      "details": [
+        {
+          "value": "2025",
+          "label": "装修"
+        },
+        {
+          "value": "现代简约",
+          "label": "风格"
+        },
+        {
+          "value": "24小时前台",
+          "label": "服务"
+        }
+      ],
+      "facilities": [
+        "WIFI",
+        "健身房",
+        "停车场"
+      ],
+      "owner": "merchant",
+      "rooms": [
+        {
+          "price": 799,
+          "description": "1张1.8米床+1张1.2米床 | 42m²",
+          "name": "童趣家庭房"
+        },
+        {
+          "price": 859,
+          "description": "1张2米大床 | 55m²",
+          "name": "城堡主题套房"
+        }
+      ],
+      "createdAt": "2026-02-20T15:02:53.413Z",
+      "updatedAt": "2026-02-20T15:06:50.024Z"
+    },
+    {
+      "id": 11,
+      "name": "上海人民广场城市酒店",
+      "address": "黄浦区西藏中路555号",
+      "area": "人民广场",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1740&q=80",
+      "price": 569,
+      "score": 0,
+      "scoreLabel": "新开业",
+      "star": 4,
+      "status": "approved",
+      "description": "近博物馆与南京路步行街",
+      "tags": [
+        "上海",
+        "测试数据"
+      ],
+      "details": [
+        {
+          "value": "2025",
+          "label": "装修"
+        },
+        {
+          "value": "现代简约",
+          "label": "风格"
+        },
+        {
+          "value": "24小时前台",
+          "label": "服务"
+        }
+      ],
+      "facilities": [
+        "WIFI",
+        "健身房",
+        "停车场"
+      ],
+      "owner": "merchant",
+      "rooms": [
+        {
+          "price": 569,
+          "description": "1张1.8米床 | 30m²",
+          "name": "城市大床房"
+        },
+        {
+          "price": 629,
+          "description": "2张1.2米床 | 32m²",
+          "name": "城景双床房"
+        }
+      ],
+      "createdAt": "2026-02-20T15:02:53.417Z",
+      "updatedAt": "2026-02-20T15:06:50.027Z"
+    },
+    {
+      "id": 12,
+      "name": "上海杨浦大学城精选酒店",
+      "address": "杨浦区国定路258号",
+      "area": "五角场",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1740&q=80",
+      "price": 329,
+      "score": 0,
+      "scoreLabel": "新开业",
+      "star": 3,
+      "status": "approved",
+      "description": "近高校与创智天地，适合差旅",
+      "tags": [
+        "上海",
+        "测试数据"
+      ],
+      "details": [
+        {
+          "value": "2025",
+          "label": "装修"
+        },
+        {
+          "value": "现代简约",
+          "label": "风格"
+        },
+        {
+          "value": "24小时前台",
+          "label": "服务"
+        }
+      ],
+      "facilities": [
+        "WIFI",
+        "健身房",
+        "停车场"
+      ],
+      "owner": "merchant",
+      "rooms": [
+        {
+          "price": 329,
+          "description": "1张1.8米床 | 24m²",
+          "name": "舒适大床房"
+        },
+        {
+          "price": 389,
+          "description": "2张1.2米床 | 26m²",
+          "name": "舒适双床房"
+        }
+      ],
+      "createdAt": "2026-02-20T15:02:53.420Z",
+      "updatedAt": "2026-02-20T15:06:50.031Z"
     }
   ],
-  "nextHotelId": 5,
+  "nextHotelId": 13,
   "nextRoomId": 1002
 }

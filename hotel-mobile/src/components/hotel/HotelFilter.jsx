@@ -73,7 +73,7 @@ const quickLocateMap = {
   设施服务: '设施服务',
 }
 
-export default function HotelFilter({ activePopup, setActivePopup }) {
+export default function HotelFilter({ activePopup, setActivePopup, onFilterChange }) {
   const [popupTopOffset, setPopupTopOffset] = useState(98)
   const [filterValues, setFilterValues] = useState({
     sort: 'score',
@@ -144,8 +144,9 @@ export default function HotelFilter({ activePopup, setActivePopup }) {
   }
 
   const handleSortSelect = (value) => {
-    setFilterValues(prev => ({ ...prev, sort: value }))
-    console.log('酒店筛选-排序', { sort: value })
+    const next = { ...filterValues, sort: value }
+    setFilterValues(next)
+    onFilterChange?.(next)
     setActivePopup(null)
   }
 
@@ -154,8 +155,9 @@ export default function HotelFilter({ activePopup, setActivePopup }) {
   }
 
   const handleLocationConfirm = () => {
-    setFilterValues(prev => ({ ...prev, location: locationDraft }))
-    console.log('酒店筛选-位置距离', locationDraft)
+    const next = { ...filterValues, location: locationDraft }
+    setFilterValues(next)
+    onFilterChange?.(next)
     setActivePopup(null)
   }
 
@@ -184,8 +186,9 @@ export default function HotelFilter({ activePopup, setActivePopup }) {
   }
 
   const handlePriceConfirm = () => {
-    setFilterValues(prev => ({ ...prev, price: priceDraft }))
-    console.log('酒店筛选-价格星级', priceDraft)
+    const next = { ...filterValues, price: priceDraft }
+    setFilterValues(next)
+    onFilterChange?.(next)
     setActivePopup(null)
   }
 
@@ -217,8 +220,9 @@ export default function HotelFilter({ activePopup, setActivePopup }) {
   }
 
   const handleFilterConfirm = () => {
-    setFilterValues(prev => ({ ...prev, filter: filterDraft }))
-    console.log('酒店筛选-筛选', filterDraft)
+    const next = { ...filterValues, filter: filterDraft }
+    setFilterValues(next)
+    onFilterChange?.(next)
     setActivePopup(null)
   }
 

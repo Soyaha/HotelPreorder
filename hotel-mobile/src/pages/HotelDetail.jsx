@@ -39,6 +39,7 @@ const HotelDetail = () => {
     const [adults, setAdults] = useState(initGuest.adults ?? 1);
     const [children, setChildren] = useState(initGuest.children ?? 0);
     const [showGuestPopup, setShowGuestPopup] = useState(false);
+    const [roomTagFilters, setRoomTagFilters] = useState([])
 
     useEffect(() => {
         const fetchHotelDetail = async () => {
@@ -104,6 +105,25 @@ const HotelDetail = () => {
             hotel.image  // Duplicate for demo
         ];
     }, [hotel]);
+
+    const filteredRooms = useMemo(() => {
+        const allRooms = Array.isArray(hotel?.rooms) ? hotel.rooms : []
+        if (roomTagFilters.length === 0) return allRooms
+
+        return allRooms.filter((room) => {
+            const text = `${room.name || ''} ${room.description || ''}`.toLowerCase()
+
+            return roomTagFilters.every((filter) => {
+                if (filter === 'twin') return text.includes('双床') || text.includes('twin')
+                if (filter === 'king') return text.includes('大床') || text.includes('king')
+                if (filter === 'family') return text.includes('家庭') || text.includes('family')
+                if (filter === 'suite') return text.includes('套房') || text.includes('suite')
+                if (filter === 'breakfast') return text.includes('早餐')
+                if (filter === 'free_cancel') return true
+                return true
+            })
+        })
+    }, [hotel, roomTagFilters])
 
     if (loading) {
         return (
@@ -188,10 +208,10 @@ const HotelDetail = () => {
                      </div>
                      
                  </div>
-                <FilterTagsSection/>
+                <FilterTagsSection value={roomTagFilters} onChange={setRoomTagFilters} />
             </div>
            
-            <RoomList hotel={hotel} />
+            <RoomList hotel={hotel} rooms={filteredRooms} />
 
             {/* Popups */}
             <CalendarPopup
