@@ -13,7 +13,7 @@ const HotelEntry = () => {
     const location = useLocation();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [imagePreview, setImagePreview] = useState('');
+    const [imagePreviews, setImagePreviews] = useState([]);
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const editingHotel = location.state?.hotel || null;
     const isEditMode = Boolean(editingHotel?.id);
@@ -21,9 +21,13 @@ const HotelEntry = () => {
     useEffect(() => {
         if (!editingHotel) {
             form.resetFields();
-            setImagePreview('');
+            setImagePreviews([]);
             return;
         }
+
+        const existingImages = Array.isArray(editingHotel.images)
+            ? editingHotel.images.filter(Boolean)
+            : (editingHotel.image ? [editingHotel.image] : []);
 
         form.setFieldsValue({
             id: editingHotel.id,
@@ -31,6 +35,7 @@ const HotelEntry = () => {
             address: editingHotel.address || '',
             area: editingHotel.area || '',
             image: editingHotel.image || '',
+            images: existingImages,
             star: editingHotel.star,
             price: editingHotel.price,
             facilities: Array.isArray(editingHotel.facilities) ? editingHotel.facilities : [],
@@ -39,7 +44,7 @@ const HotelEntry = () => {
             rooms: Array.isArray(editingHotel.rooms) ? editingHotel.rooms : [],
         });
 
-        setImagePreview(editingHotel.image || '');
+        setImagePreviews(existingImages);
     }, [editingHotel, form]);
 
     const handleImageBeforeUpload = (file) => {
@@ -52,9 +57,14 @@ const HotelEntry = () => {
         const reader = new FileReader();
         reader.onload = () => {
             const base64 = reader.result;
-            form.setFieldValue('image', base64);
-            setImagePreview(base64);
-            message.success('图片已选择，可直接提交');
+            const current = Array.isArray(form.getFieldValue('images')) ? form.getFieldValue('images') : [];
+            const nextImages = [...current, base64].slice(0, 9);
+            form.setFieldValue('images', nextImages);
+            if (!form.getFieldValue('image')) {
+                form.setFieldValue('image', nextImages[0]);
+            }
+            setImagePreviews(nextImages);
+            message.success('图片已添加，可继续上传');
         };
         reader.onerror = () => {
             message.error('图片读取失败，请重试');
@@ -63,15 +73,34 @@ const HotelEntry = () => {
         return false;
     };
 
+    const removeImageAt = (index) => {
+        const current = Array.isArray(form.getFieldValue('images')) ? form.getFieldValue('images') : [];
+        const nextImages = current.filter((_, idx) => idx !== index);
+        form.setFieldValue('images', nextImages);
+        setImagePreviews(nextImages);
+
+        const cover = form.getFieldValue('image');
+        if (!cover || cover === current[index]) {
+            form.setFieldValue('image', nextImages[0] || '');
+        }
+    };
+
     const onFinish = async (values) => {
         setLoading(true);
         try {
+            const uploadedImages = Array.isArray(values.images) ? values.images.filter(Boolean) : [];
+            const manualCover = (values.image || '').trim();
+            const mergedImages = manualCover
+                ? [manualCover, ...uploadedImages.filter((item) => item !== manualCover)]
+                : uploadedImages;
+
             const payload = {
                 ...values,
                 owner: user.username,
                 id: isEditMode ? editingHotel.id : undefined,
                 openDate: values.openDate ? values.openDate.format('YYYY-MM-DD') : undefined,
-                image: values.image || '',
+                image: mergedImages[0] || '',
+                images: mergedImages,
                 area: values.area || '',
                 tags: Array.isArray(values.tags) ? values.tags : [],
                 facilities: Array.isArray(values.facilities) ? values.facilities : [],
@@ -92,7 +121,7 @@ const HotelEntry = () => {
                     navigate('/my-hotels');
                 } else {
                     form.resetFields();
-                    setImagePreview('');
+                    setImagePreviews([]);
                 }
             } else {
                 message.error('提交失败: ' + (data.message || '未知错误'));
@@ -135,23 +164,41 @@ const HotelEntry = () => {
                     </Form.Item>
                 </div>
 
-                <Form.Item label="酒店主图上传（可直接上传）">
+                <Form.Item name="images" hidden>
+                    <Input />
+                </Form.Item>
+
+                <Form.Item label="酒店图片上传（支持多图，最多9张）">
                     <Space direction="vertical" style={{ width: '100%' }}>
                         <Upload
                             accept="image/*"
-                            maxCount={1}
+                            maxCount={9}
                             showUploadList={false}
                             beforeUpload={handleImageBeforeUpload}
                         >
-                            <Button icon={<PlusOutlined />}>选择本地图片</Button>
+                            <Button icon={<PlusOutlined />}>选择本地图片（可多次添加）</Button>
                         </Upload>
-                        {(imagePreview || form.getFieldValue('image')) && (
-                            <Image
-                                src={imagePreview || form.getFieldValue('image')}
-                                width={220}
-                                height={120}
-                                style={{ objectFit: 'cover', borderRadius: 8, border: '1px solid #f0f0f0' }}
-                            />
+                        {imagePreviews.length > 0 && (
+                            <Space wrap>
+                                {imagePreviews.map((src, index) => (
+                                    <div key={`${index}-${src.slice(0, 24)}`} style={{ position: 'relative' }}>
+                                        <Image
+                                            src={src}
+                                            width={150}
+                                            height={90}
+                                            style={{ objectFit: 'cover', borderRadius: 8, border: '1px solid #f0f0f0' }}
+                                        />
+                                        <Button
+                                            size="small"
+                                            danger
+                                            style={{ position: 'absolute', top: 4, right: 4 }}
+                                            onClick={() => removeImageAt(index)}
+                                        >
+                                            删除
+                                        </Button>
+                                    </div>
+                                ))}
+                            </Space>
                         )}
                     </Space>
                 </Form.Item>

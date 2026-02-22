@@ -97,20 +97,22 @@ const HotelDetail = () => {
 
     // Use memo to ensure images are stable
     const images = useMemo(() => {
-        if (!hotel?.image) return [];
-        // Mocking multiple images for the carousel based on the single image
-        return [
-            hotel.image,
-            hotel.image, // Duplicate for demo
-            hotel.image  // Duplicate for demo
-        ];
+        if (Array.isArray(hotel?.images) && hotel.images.length > 0) {
+            return hotel.images.filter(Boolean)
+        }
+        if (hotel?.image) {
+            return [hotel.image]
+        }
+        return []
     }, [hotel]);
 
     const filteredRooms = useMemo(() => {
         const allRooms = Array.isArray(hotel?.rooms) ? hotel.rooms : []
-        if (roomTagFilters.length === 0) return allRooms
+        if (roomTagFilters.length === 0) {
+            return [...allRooms].sort((a, b) => Number(a?.price || 0) - Number(b?.price || 0))
+        }
 
-        return allRooms.filter((room) => {
+        const matchedRooms = allRooms.filter((room) => {
             const text = `${room.name || ''} ${room.description || ''}`.toLowerCase()
 
             return roomTagFilters.every((filter) => {
@@ -123,6 +125,8 @@ const HotelDetail = () => {
                 return true
             })
         })
+
+        return [...matchedRooms].sort((a, b) => Number(a?.price || 0) - Number(b?.price || 0))
     }, [hotel, roomTagFilters])
 
     if (loading) {

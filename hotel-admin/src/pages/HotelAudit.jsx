@@ -9,6 +9,8 @@ const HotelAudit = () => {
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
     const [currentHotelId, setCurrentHotelId] = useState(null);
     const [rejectReason, setRejectReason] = useState('');
+    const [detailModalOpen, setDetailModalOpen] = useState(false);
+    const [detailHotel, setDetailHotel] = useState(null);
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     const fetchHotels = async () => {
@@ -23,7 +25,14 @@ const HotelAudit = () => {
             const data = await res.json();
             // Node server returns array directly or { success: false } ? 
             // Looking at index.js, it returns array directly for /api/hotels
-            setHotels(Array.isArray(data) ? data : []);
+            const list = Array.isArray(data) ? data : [];
+            const statusOrder = { pending: 0, rejected: 1, approved: 2, offline: 3 };
+            list.sort((a, b) => {
+                const byStatus = (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
+                if (byStatus !== 0) return byStatus;
+                return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
+            });
+            setHotels(list);
         } catch (e) {
             message.error('获取列表失败');
         }
@@ -53,6 +62,11 @@ const HotelAudit = () => {
         }
     };
 
+    const openDetailModal = (hotel) => {
+        setDetailHotel(hotel);
+        setDetailModalOpen(true);
+    };
+
     const columns = [
         { title: 'ID', dataIndex: 'id', width: 60 },
         { title: '酒店名称', dataIndex: 'name' },
@@ -72,10 +86,21 @@ const HotelAudit = () => {
             }
         },
         {
+            title: '驳回原因',
+            dataIndex: 'rejectReason',
+            render: (_, record) => {
+                if (record.status !== 'rejected') return '-';
+                return record.rejectReason || '-';
+            }
+        },
+        {
             title: '操作',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
+                    {user.role === 'admin' && (
+                        <Button type="link" onClick={() => openDetailModal(record)}>查看详情</Button>
+                    )}
                     {user.role === 'admin' && record.status === 'pending' && (
                         <>
                             <Button type="link" onClick={() => handleStatus(record.id, 'approved')}>通过</Button>
@@ -100,6 +125,90 @@ const HotelAudit = () => {
         <div>
             <h2>酒店审核管理</h2>
             <Table dataSource={hotels} columns={columns} rowKey="id" loading={loading} />
+
+            <Modal
+                title="商户提交详情"
+                open={detailModalOpen}
+                onCancel={() => setDetailModalOpen(false)}
+                footer={null}
+                width={900}
+            >
+                {detailHotel && (
+                    <div style={{ maxHeight: 620, overflow: 'auto' }}>
+                        <div style={{ marginBottom: 12, fontWeight: 600 }}>基础信息</div>
+                        <div style={{ lineHeight: '28px', marginBottom: 12 }}>
+                            <div><b>酒店名：</b>{detailHotel.name || '-'}</div>
+                            <div><b>地址：</b>{detailHotel.address || '-'}</div>
+                            <div><b>区域：</b>{detailHotel.area || '-'}</div>
+                            <div><b>提交商户：</b>{detailHotel.owner || '-'}</div>
+                            <div><b>状态：</b>{detailHotel.status || '-'}</div>
+                            <div><b>星级：</b>{detailHotel.star || '-'} 星</div>
+                            <div><b>价格：</b>￥{detailHotel.price || 0}</div>
+                            <div><b>简介：</b>{detailHotel.description || '-'}</div>
+                            {detailHotel.status === 'rejected' && (
+                                <div><b>驳回原因：</b>{detailHotel.rejectReason || '-'}</div>
+                            )}
+                        </div>
+
+                        <div style={{ marginBottom: 12, fontWeight: 600 }}>酒店图片</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+                            {(Array.isArray(detailHotel.images) && detailHotel.images.length > 0
+                                ? detailHotel.images
+                                : (detailHotel.image ? [detailHotel.image] : [])
+                            ).map((img, idx) => (
+                                <img
+                                    key={`${idx}-${img?.slice?.(0, 16) || 'img'}`}
+                                    src={img}
+                                    alt={`hotel-${idx}`}
+                                    style={{ width: 160, height: 100, objectFit: 'cover', borderRadius: 6, border: '1px solid #f0f0f0' }}
+                                />
+                            ))}
+                        </div>
+
+                        <div style={{ marginBottom: 8, fontWeight: 600 }}>设施</div>
+                        <div style={{ marginBottom: 12 }}>
+                            {(detailHotel.facilities || []).length > 0
+                                ? detailHotel.facilities.map((item) => (
+                                    <Tag key={item} style={{ marginBottom: 6 }}>{item}</Tag>
+                                ))
+                                : '-'}
+                        </div>
+
+                        <div style={{ marginBottom: 8, fontWeight: 600 }}>标签</div>
+                        <div style={{ marginBottom: 12 }}>
+                            {(detailHotel.tags || []).length > 0
+                                ? detailHotel.tags.map((item) => (
+                                    <Tag key={item} color="blue" style={{ marginBottom: 6 }}>{item}</Tag>
+                                ))
+                                : '-'}
+                        </div>
+
+                        <div style={{ marginBottom: 8, fontWeight: 600 }}>酒店详情字段</div>
+                        <div style={{ marginBottom: 12 }}>
+                            {(detailHotel.details || []).length > 0
+                                ? detailHotel.details.map((item, idx) => (
+                                    <Tag key={`${item.label}-${idx}`} color="geekblue" style={{ marginBottom: 6 }}>
+                                        {item.label}：{item.value}
+                                    </Tag>
+                                ))
+                                : '-'}
+                        </div>
+
+                        <div style={{ marginBottom: 8, fontWeight: 600 }}>房型信息</div>
+                        <Table
+                            size="small"
+                            pagination={false}
+                            rowKey={(row, idx) => `${row.name || 'room'}-${idx}`}
+                            dataSource={Array.isArray(detailHotel.rooms) ? detailHotel.rooms : []}
+                            columns={[
+                                { title: '房型', dataIndex: 'name', width: 180 },
+                                { title: '描述', dataIndex: 'description' },
+                                { title: '价格', dataIndex: 'price', width: 120, render: (p) => `￥${p}` },
+                            ]}
+                        />
+                    </div>
+                )}
+            </Modal>
 
             <Modal
                 title="拒绝原因"

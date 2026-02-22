@@ -4,16 +4,18 @@ import HotelSearchHeader from "../components/hotel/HotelSearchHeader";
 import HotelFilter from "../components/hotel/HotelFilter";
 import { useNavigate } from "react-router-dom";
 import { SearchContext } from '../App'
-import { Toast } from 'antd-mobile'
+import { InfiniteScroll, Toast } from 'antd-mobile'
 import '../components/hotel/HotelList.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+const PAGE_SIZE = 6
 
 const HotelList = () => {
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState('');
     const [activePopup, setActivePopup] = useState(null);
     const [hotelData, setHotelData] = useState([])
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
     const [loading, setLoading] = useState(true)
     const [fetchError, setFetchError] = useState('')
     const [activeFilters, setActiveFilters] = useState({
@@ -141,6 +143,20 @@ const HotelList = () => {
         return sorted
     }, [hotelData, searchText, location, activeFilters, homeQuickTags])
 
+    useEffect(() => {
+        setVisibleCount(PAGE_SIZE)
+    }, [searchText, activeFilters, location, homeQuickTags, hotelData])
+
+    const visibleHotels = useMemo(() => {
+        return filteredHotels.slice(0, visibleCount)
+    }, [filteredHotels, visibleCount])
+
+    const hasMore = visibleCount < filteredHotels.length
+
+    const loadMore = async () => {
+        setVisibleCount(prev => Math.min(prev + PAGE_SIZE, filteredHotels.length))
+    }
+
     return (
         <div className="hotel-list-page">
             {/* Custom Header Floating Card */}
@@ -173,7 +189,7 @@ const HotelList = () => {
                 {!loading && !fetchError && filteredHotels.length === 0 && (
                     <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>暂无符合条件的酒店</div>
                 )}
-                {!loading && !fetchError && filteredHotels.map(hotel => (
+                     {!loading && !fetchError && visibleHotels.map(hotel => (
                      <HotelCard 
                         key={hotel.id} 
                         hotel={hotel} 
@@ -186,6 +202,9 @@ const HotelList = () => {
                         })} 
                      />
                 ))}
+                {!loading && !fetchError && filteredHotels.length > 0 && (
+                    <InfiniteScroll loadMore={loadMore} hasMore={hasMore} />
+                )}
             </div>
         </div>
     )

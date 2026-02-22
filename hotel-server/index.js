@@ -92,8 +92,28 @@ const ensureHotelDefaults = (hotel, mutableState) => {
     let changed = false;
     const nextHotel = { ...hotel };
 
+    if (!Array.isArray(nextHotel.images)) {
+        nextHotel.images = nextHotel.image ? [nextHotel.image] : [];
+        changed = true;
+    }
+
+    if (Array.isArray(nextHotel.images) && nextHotel.images.length === 0 && nextHotel.image) {
+        nextHotel.images = [nextHotel.image];
+        changed = true;
+    }
+
+    if (!nextHotel.image && Array.isArray(nextHotel.images) && nextHotel.images.length > 0) {
+        nextHotel.image = nextHotel.images[0];
+        changed = true;
+    }
+
     if (!nextHotel.image) {
         nextHotel.image = DEFAULT_HOTEL_IMAGE;
+        changed = true;
+    }
+
+    if (Array.isArray(nextHotel.images) && nextHotel.images.length === 0) {
+        nextHotel.images = [nextHotel.image];
         changed = true;
     }
 
@@ -251,6 +271,13 @@ app.get('/api/hotels', (req, res) => {
         });
     }
 
+    const statusOrder = { pending: 0, rejected: 1, approved: 2, offline: 3 };
+    result.sort((a, b) => {
+        const byStatus = (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
+        if (byStatus !== 0) return byStatus;
+        return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
+    });
+
     return res.json(result);
 });
 
@@ -297,6 +324,7 @@ app.post('/api/hotels', (req, res) => {
     const normalizedPayload = {
         ...payload,
         price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
+        images: Array.isArray(payload.images) ? payload.images.filter(Boolean) : [],
         facilities: Array.isArray(payload.facilities) ? payload.facilities : [],
         tags: Array.isArray(payload.tags) ? payload.tags : [],
         details: Array.isArray(payload.details) ? payload.details : [],
@@ -332,6 +360,7 @@ app.post('/api/hotels', (req, res) => {
         address: normalizedPayload.address,
         area: normalizedPayload.area || '',
         image: normalizedPayload.image || '',
+        images: normalizedPayload.images,
         price: normalizedPayload.price,
         score: 0,
         scoreLabel: '新开业',
