@@ -144,10 +144,10 @@ export default function App() {
     const [guest, setGuest] = useState({ rooms: 1, adults: 1, children: 0 });
     const [homeQuickTags, setHomeQuickTags] = useState([]);
     const [location, setLocation] = useState({
-        province: '北京市',
+        province: '上海市',
         city: '市辖区',
-        district: '朝阳区',
-        valuePath: ['北京市', '市辖区', '朝阳区'],
+        district: '浦东新区',
+        valuePath: ['上海市', '市辖区', '浦东新区'],
     });
 
     const searchContextValue = useMemo(() => ({
