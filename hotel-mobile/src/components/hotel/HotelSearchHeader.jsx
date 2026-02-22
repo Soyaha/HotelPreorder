@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { LeftOutline, SearchOutline, CloseCircleFill } from 'antd-mobile-icons'
 import dayjs from 'dayjs'
 import HotelDatePopup from './HotelDatePopup'
+import RoomGuestPopup from '../home/RoomGuestPopup'
 import './HotelList.css'
 
 const HotelSearchHeader = ({
@@ -14,6 +15,8 @@ const HotelSearchHeader = ({
     activePopup,
     setActivePopup,
     cityText,
+    guest,
+    onGuestChange,
 }) => {
     const navigate = useNavigate();
 
@@ -49,6 +52,12 @@ const HotelSearchHeader = ({
     
     const startDate = dateRange[0];
     const endDate = dateRange[1];
+    const nights = Math.max(1, endDate.diff(startDate, 'day'));
+
+    const onGuestConfirm = (nextGuest) => {
+        onGuestChange?.(nextGuest)
+        setActivePopup(null)
+    }
 
     useEffect(() => {
         const updateOffset = () => {
@@ -102,8 +111,15 @@ const HotelSearchHeader = ({
                         {startDate.format('MM-DD')}
                     </span>
                     <span className="date-text">
-                        {endDate.format('MM-DD')}
+                        {endDate.format('MM-DD')} · {nights}晚
                     </span>
+                </div>
+
+                <div
+                    onClick={() => setActivePopup(prev => (prev === 'guest' ? null : 'guest'))}
+                    className="guest-display"
+                >
+                    {(guest?.rooms || 1)}间 {(guest?.adults || 1)}成人 {(guest?.children || 0)}儿童
                 </div>
 
                 {/* Search Interaction */}
@@ -134,6 +150,13 @@ const HotelSearchHeader = ({
                 onConfirm={onDateConfirm}
                 defaultDateRange={dateRange}
                 topOffset={popupTopOffset}
+            />
+
+            <RoomGuestPopup
+                visible={activePopup === 'guest'}
+                onClose={() => setActivePopup(null)}
+                onConfirm={onGuestConfirm}
+                defaultValue={guest || { rooms: 1, adults: 1, children: 0 }}
             />
         </>
     )

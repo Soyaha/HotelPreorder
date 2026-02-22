@@ -22,7 +22,7 @@ const HotelList = () => {
         price: { priceRange: [0, 750], pricePreset: null, star: null },
         filter: { leftTab: '品牌', selected: {} },
     })
-    const { dateRange, setDateRange, guest, location } = React.useContext(SearchContext);
+    const { dateRange, setDateRange, guest, setGuest, location, homeQuickTags } = React.useContext(SearchContext);
 
     useEffect(() => {
         const fetchHotels = async () => {
@@ -104,6 +104,25 @@ const HotelList = () => {
                 }
             }
 
+            if (Array.isArray(homeQuickTags) && homeQuickTags.length > 0) {
+                const textAll = `${hotel.name || ''} ${hotel.description || ''} ${(hotel.facilities || []).join(' ')}`.toLowerCase()
+                const roomTextAll = (hotel.rooms || []).map((room) => `${room.name || ''} ${room.description || ''}`).join(' ').toLowerCase()
+
+                const passQuickTags = homeQuickTags.every((tag) => {
+                    if (tag === 'pet_friendly') return textAll.includes('宠物')
+                    if (tag === 'free_parking') return textAll.includes('免费停车') || textAll.includes('停车场')
+                    if (tag === 'family') return textAll.includes('亲子') || roomTextAll.includes('家庭')
+                    if (tag === 'luxury') return Number(hotel.star || 0) >= 5 || textAll.includes('豪华')
+                    if (tag === 'king_bed') return roomTextAll.includes('大床') || roomTextAll.includes('king')
+                    if (tag === 'score_45') return Number(hotel.score || 0) >= 4.5
+                    return true
+                })
+
+                if (!passQuickTags) {
+                    return false
+                }
+            }
+
             return true
         })
 
@@ -120,7 +139,7 @@ const HotelList = () => {
         }
 
         return sorted
-    }, [hotelData, searchText, location, activeFilters])
+    }, [hotelData, searchText, location, activeFilters, homeQuickTags])
 
     return (
         <div className="hotel-list-page">
@@ -136,6 +155,8 @@ const HotelList = () => {
                         activePopup={activePopup}
                         setActivePopup={setActivePopup}
                                 cityText={location?.district || location?.city || location?.province || '北京市'}
+                                guest={guest}
+                                onGuestChange={setGuest}
                      />
 
                     <HotelFilter

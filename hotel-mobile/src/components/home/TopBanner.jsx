@@ -1,24 +1,68 @@
-import React, { useRef } from 'react';
-import { Swiper, Toast } from 'antd-mobile'
+import React, { useEffect, useMemo, useState } from 'react';
+import { Swiper, Image } from 'antd-mobile'
+import { useNavigate } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 const TopBanner = () => {
+  const navigate = useNavigate()
+  const [banners, setBanners] = useState([])
 
-  const colors = ['#ace0ff', '#bcffbd', '#e4fabd', '#ffcfac']
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/hotels/public`)
+        const data = await response.json()
+        if (!response.ok || !data?.success) {
+          return
+        }
 
+        const hotels = Array.isArray(data.hotels) ? data.hotels : []
+        const picked = hotels.filter(item => item.image).slice(0, 4)
+        setBanners(picked)
+      } catch (error) {
+        setBanners([])
+      }
+    }
 
-  const items = colors.map((color, index) => (
+    fetchBanners()
+  }, [])
+
+  const items = useMemo(() => banners.map((hotel, index) => (
     <Swiper.Item key={index}>
       <div
-        style={{ background: color, height: 200 }}
+        style={{ height: 200, width: '100%' }}
         onClick={() => {
-          Toast.show(`你点击了卡片 ${index + 1}`)
+          navigate(`/detail/${hotel.id}`, { state: { hotel } })
         }}
       >
-        {index + 1}
+        <Image
+          src={hotel.image}
+          width='100%'
+          height='100%'
+          fit='cover'
+        />
       </div>
     </Swiper.Item>
-  ))
+  )), [banners, navigate])
+
+  if (items.length === 0) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          paddingBottom: 20,
+          width: '100%',
+          height: 200,
+          position: 'relative',
+          background: '#ace0ff'
+        }}
+      />
+    )
+  }
 
 
   return (

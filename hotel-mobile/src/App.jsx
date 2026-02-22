@@ -24,7 +24,16 @@ export const SearchContext = React.createContext(null)
 
 const Home = () => {
     const navigate = useNavigate();
-    const { dateRange, setDateRange, guest, setGuest, location, setLocation } = React.useContext(SearchContext);
+    const {
+        dateRange,
+        setDateRange,
+        guest,
+        setGuest,
+        location,
+        setLocation,
+        homeQuickTags,
+        setHomeQuickTags,
+    } = React.useContext(SearchContext);
 
     return (
         <div style={{ paddingBottom: 50, position: 'relative', background: '#EBEEF5', minHeight: '100vh', overflow: 'hidden' }}>
@@ -59,7 +68,7 @@ const Home = () => {
                         children={guest.children}
                         onGuestChange={setGuest}
                     />
-                    <FilterTagsSection />
+                    <FilterTagsSection value={homeQuickTags} onChange={setHomeQuickTags} />
                     <div onClick={() => {
                         navigate('/list')
                     }}>
@@ -133,6 +142,7 @@ function Layout() {
 export default function App() {
     const [dateRange, setDateRange] = useState([dayjs(), dayjs().add(1, 'day')]);
     const [guest, setGuest] = useState({ rooms: 1, adults: 1, children: 0 });
+    const [homeQuickTags, setHomeQuickTags] = useState([]);
     const [location, setLocation] = useState({
         province: '北京市',
         city: '市辖区',
@@ -145,9 +155,11 @@ export default function App() {
         setDateRange,
         guest,
         setGuest,
+        homeQuickTags,
+        setHomeQuickTags,
         location,
         setLocation,
-    }), [dateRange, guest, location]);
+    }), [dateRange, guest, homeQuickTags, location]);
 
     return (
         <Router>

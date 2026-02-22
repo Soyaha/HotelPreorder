@@ -20,15 +20,15 @@ const TagItem = ({ text, selected }) => (
 )
 
 const options = [
-  { label: '宠物友好', value: '1' },
-  { label: '免费停车场', value: '2' },
-  { label: '亲子', value: '3' },
-  { label: '豪华', value: '4' },
-  { label: '大床房', value: '5' },
-  { label: '4.5分以上', value: '6' },
+  { label: '宠物友好', value: 'pet_friendly' },
+  { label: '免费停车场', value: 'free_parking' },
+  { label: '亲子', value: 'family' },
+  { label: '豪华', value: 'luxury' },
+  { label: '大床房', value: 'king_bed' },
+  { label: '4.5分以上', value: 'score_45' },
 ]
 
-const FilterTagsSection = () => {
+const FilterTagsSection = ({ value = [], onChange }) => {
   return (
     <div style={{
       display: 'flex',
@@ -50,8 +50,9 @@ const FilterTagsSection = () => {
 
         <Selector
           options={options}
+          value={value}
           multiple
-          onChange={(arr, extend) => console.log(arr, extend.items)}
+          onChange={onChange}
           showCheckMark={true}
           style={{
             '--border-radius': '7px'

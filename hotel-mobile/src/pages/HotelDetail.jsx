@@ -172,7 +172,7 @@ const HotelDetail = () => {
                     background: 'transparent'
                 }}
             >
-                {/* Title hidden initially or shown? Design shows transparent header */}
+                {hotel?.name || '酒店详情'}
             </NavBar>
             
             <HotelBanner images={images} />
