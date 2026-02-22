@@ -5,6 +5,7 @@ import './HotelList.css'
 const HotelCard = ({ hotel, onClick }) => {
     const { 
         name, 
+        englishName,
         image, 
         score, 
         scoreLabel,
@@ -14,6 +15,13 @@ const HotelCard = ({ hotel, onClick }) => {
         price, 
         promotionTag 
     } = hotel
+
+    const starCount = Math.max(0, Math.min(5, Number(hotel?.star || 0)))
+    const filledStars = '⭐'.repeat(starCount)
+    const emptyStars = '☆'.repeat(5 - starCount)
+    const hasValidScore = Number(score) > 0
+    const displayScore = hasValidScore ? Number(score).toFixed(1) : '新'
+    const displayScoreLabel = hasValidScore ? (scoreLabel || '不错') : (scoreLabel || '新开业')
 
     return (
         <div 
@@ -37,19 +45,27 @@ const HotelCard = ({ hotel, onClick }) => {
                 <div className="hotel-name">
                     {name}
                 </div>
+                {englishName && (
+                    <div className="hotel-english-name" style={{ fontSize: '12px', color: '#666', marginTop: '-4px', marginBottom: '4px' }}>
+                        {englishName}
+                    </div>
+                )}
                 
                 {/* starIcon */}
                 <div className="hotel-stars">
-                     <span className="star-placeholder">⭐⭐⭐⭐⭐</span>
+                     <span className="star-placeholder">
+                        {filledStars}
+                        <span style={{ color: '#D9D9D9' }}>{emptyStars}</span>
+                     </span>
                 </div>
 
                 {/* RatingTag - Trip Blue */}
                 <div className="score-container">
                     <div className="score-badge">
-                        {score}
+                        {displayScore}
                     </div>
                     <div className="score-label">
-                        {scoreLabel}
+                        {displayScoreLabel}
                     </div>
                 </div>
 

@@ -69,7 +69,16 @@ const HotelAudit = () => {
 
     const columns = [
         { title: 'ID', dataIndex: 'id', width: 60 },
-        { title: '酒店名称', dataIndex: 'name' },
+        { 
+            title: '酒店名称', 
+            dataIndex: 'name',
+            render: (text, record) => (
+                <div>
+                    <div>{text}</div>
+                    {record.englishName && <div style={{ fontSize: '12px', color: '#888' }}>{record.englishName}</div>}
+                </div>
+            )
+        },
         { title: '提交商户', dataIndex: 'owner' },
         { title: '价格', dataIndex: 'price', render: p => `￥${p}` },
         { 
@@ -138,6 +147,7 @@ const HotelAudit = () => {
                         <div style={{ marginBottom: 12, fontWeight: 600 }}>基础信息</div>
                         <div style={{ lineHeight: '28px', marginBottom: 12 }}>
                             <div><b>酒店名：</b>{detailHotel.name || '-'}</div>
+                            <div><b>英文名：</b>{detailHotel.englishName || '-'}</div>
                             <div><b>地址：</b>{detailHotel.address || '-'}</div>
                             <div><b>区域：</b>{detailHotel.area || '-'}</div>
                             <div><b>提交商户：</b>{detailHotel.owner || '-'}</div>

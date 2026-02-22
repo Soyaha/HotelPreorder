@@ -8,7 +8,7 @@ import { InfiniteScroll, Toast } from 'antd-mobile'
 import '../components/hotel/HotelList.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-const PAGE_SIZE = 6
+const PAGE_SIZE = 4
 
 const HotelList = () => {
     const navigate = useNavigate();
@@ -57,9 +57,21 @@ const HotelList = () => {
             const matchLocation = !locationText || text.includes(locationText) || text.includes((location?.district || '').toLowerCase()) || text.includes((location?.city || '').toLowerCase())
             if (!matchKeyword || !matchLocation) return false
 
-            const selectedLocationOption = activeFilters.location?.option?.toLowerCase?.() || ''
-            if (selectedLocationOption && !text.includes(selectedLocationOption)) {
-                return false
+            const selectedLocationOptionRaw = activeFilters.location?.option || ''
+            const selectedLocationOption = selectedLocationOptionRaw.toLowerCase?.() || ''
+            if (selectedLocationOption) {
+                const distanceMatch = String(selectedLocationOptionRaw).match(/(\d+)\s*米内/)
+                if (distanceMatch) {
+                    const limitMeters = Number(distanceMatch[1])
+                    const distanceMeters = Number(hotel.distanceMeters)
+                    if (Number.isFinite(distanceMeters)) {
+                        if (distanceMeters > limitMeters) {
+                            return false
+                        }
+                    }
+                } else if (!text.includes(selectedLocationOption)) {
+                    return false
+                }
             }
 
             const [minPrice, maxPrice] = activeFilters.price?.priceRange || [0, 999999]
@@ -203,7 +215,9 @@ const HotelList = () => {
                      />
                 ))}
                 {!loading && !fetchError && filteredHotels.length > 0 && (
-                    <InfiniteScroll loadMore={loadMore} hasMore={hasMore} />
+                    <InfiniteScroll loadMore={loadMore} hasMore={hasMore}>
+                        {hasMore ? '正在加载更多酒店...' : '没有更多酒店了'}
+                    </InfiniteScroll>
                 )}
             </div>
         </div>

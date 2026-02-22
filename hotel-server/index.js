@@ -14,7 +14,7 @@ const DEFAULT_HOTEL_DETAILS = [
 ];
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
 
 const ensureDir = (targetPath) => {
     const targetDir = path.dirname(targetPath);
@@ -266,7 +266,7 @@ app.get('/api/hotels', (req, res) => {
     if (q) {
         const keyword = String(q).toLowerCase();
         result = result.filter((hotel) => {
-            const baseText = `${hotel.name || ''} ${hotel.address || ''} ${hotel.area || ''} ${hotel.description || ''}`.toLowerCase();
+            const baseText = `${hotel.name || ''} ${hotel.englishName || ''} ${hotel.address || ''} ${hotel.area || ''} ${hotel.description || ''}`.toLowerCase();
             return baseText.includes(keyword);
         });
     }
@@ -357,6 +357,7 @@ app.post('/api/hotels', (req, res) => {
     const newHotel = {
         id: state.nextHotelId,
         name: normalizedPayload.name,
+        englishName: normalizedPayload.englishName || '',
         address: normalizedPayload.address,
         area: normalizedPayload.area || '',
         image: normalizedPayload.image || '',

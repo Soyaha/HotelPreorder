@@ -32,6 +32,7 @@ const HotelEntry = () => {
         form.setFieldsValue({
             id: editingHotel.id,
             name: editingHotel.name || '',
+            englishName: editingHotel.englishName || '',
             address: editingHotel.address || '',
             area: editingHotel.area || '',
             image: editingHotel.image || '',
@@ -51,6 +52,12 @@ const HotelEntry = () => {
         const isImage = file.type.startsWith('image/');
         if (!isImage) {
             message.error('只能上传图片文件');
+            return Upload.LIST_IGNORE;
+        }
+
+        const maxSizeMB = 2;
+        if (file.size > maxSizeMB * 1024 * 1024) {
+            message.error(`单张图片不能超过${maxSizeMB}MB，请压缩后重试`);
             return Upload.LIST_IGNORE;
         }
 
@@ -114,7 +121,23 @@ const HotelEntry = () => {
                 },
                 body: JSON.stringify(payload)
             });
-            const data = await res.json();
+
+            const rawText = await res.text();
+            let data = {};
+            try {
+                data = rawText ? JSON.parse(rawText) : {};
+            } catch (error) {
+                data = {};
+            }
+
+            if (!res.ok) {
+                const backendMessage = data?.message
+                    || (res.status === 413 ? '上传内容过大，请减少图片数量或压缩图片后重试' : `请求失败（${res.status}）`);
+                message.error(`提交失败: ${backendMessage}`);
+                setLoading(false);
+                return;
+            }
+
             if(data.success) {
                 message.success(isEditMode ? '更新成功，已重新提交审核' : '提交成功，等待管理员审核');
                 if (isEditMode) {
@@ -127,7 +150,7 @@ const HotelEntry = () => {
                 message.error('提交失败: ' + (data.message || '未知错误'));
             }
         } catch (e) {
-            message.error('网络错误');
+            message.error('网络错误：请确认后端服务已启动');
         }
         setLoading(false);
     };
@@ -149,6 +172,10 @@ const HotelEntry = () => {
             >
                 <Form.Item label="酒店名称" name="name" rules={[{ required: true }]}>
                     <Input placeholder="请输入酒店全称" />
+                </Form.Item>
+
+                <Form.Item label="酒店英文名称" name="englishName">
+                    <Input placeholder="请输入酒店英文名称 (可选)" />
                 </Form.Item>
 
                 <Form.Item label="酒店地址" name="address" rules={[{ required: true }]}>

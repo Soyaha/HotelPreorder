@@ -153,6 +153,7 @@ const HotelDetail = () => {
 
     const { 
         name, 
+        englishName,
         score,
         scoreLabel,
         tags,
@@ -183,6 +184,7 @@ const HotelDetail = () => {
             
             <HotelBasicInfo 
                 name={name} 
+                englishName={englishName}
                 score={score}
                 scoreLabel={scoreLabel}
                 tags={tags} 

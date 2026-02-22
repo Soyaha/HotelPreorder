@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LeftOutline, SearchOutline, CloseCircleFill } from 'antd-mobile-icons'
+import { LeftOutline, SearchOutline, CloseCircleFill, EnvironmentOutline, MoreOutline } from 'antd-mobile-icons'
 import dayjs from 'dayjs'
 import HotelDatePopup from './HotelDatePopup'
 import RoomGuestPopup from '../home/RoomGuestPopup'
@@ -102,44 +102,53 @@ const HotelSearchHeader = ({
                     <span className="city-text">{cityText || '北京市'}</span>
                 </div>
 
-                {/* Date */}
-                <div 
-                    onClick={() => setActivePopup(prev => (prev === 'date' ? null : 'date'))}
-                    className="date-display"
-                >
-                    <span className="date-text">
-                        {startDate.format('MM-DD')}
-                    </span>
-                    <span className="date-text">
-                        {endDate.format('MM-DD')} · {nights}晚
-                    </span>
-                </div>
-
-                <div
-                    onClick={() => setActivePopup(prev => (prev === 'guest' ? null : 'guest'))}
-                    className="guest-display"
-                >
-                    {(guest?.rooms || 1)}间 {(guest?.adults || 1)}成人 {(guest?.children || 0)}儿童
+                {/* Date & Guest */}
+                <div className="date-guest-display">
+                    <div 
+                        className="date-guest-row"
+                        onClick={() => setActivePopup(prev => (prev === 'date' ? null : 'date'))}
+                    >
+                        <span className="date-text">{startDate.format('MM-DD')}</span>
+                        <span className="guest-text">{(guest?.rooms || 1)}间</span>
+                    </div>
+                    <div 
+                        className="date-guest-row"
+                        onClick={() => setActivePopup(prev => (prev === 'guest' ? null : 'guest'))}
+                    >
+                        <span className="date-text">{endDate.format('MM-DD')}</span>
+                        <span className="guest-text">{(guest?.adults || 1)}人</span>
+                    </div>
                 </div>
 
                 {/* Search Interaction */}
                 <div className="search-area">
+                    <SearchOutline fontSize={16} color="#999" className="search-icon-left" />
                     <input 
                         className="search-input"
                         placeholder="位置/品牌/酒店"
                         value={searchText}
                         onChange={onSearchChange}
                     />
-                    <div className="search-icon-container">
-                        {searchText ? (
-                             <CloseCircleFill 
+                    {searchText && (
+                        <div className="search-icon-container">
+                            <CloseCircleFill 
                                 fontSize={16} 
                                 color="#ccc" 
                                 onClick={onSearchClear}
-                             />
-                        ) : (
-                             <SearchOutline fontSize={22} color="#333" />
-                        )}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* Right Icons */}
+                <div className="header-right-icons">
+                    <div className="icon-item">
+                        <EnvironmentOutline fontSize={20} color="#333" />
+                        <span className="icon-text">地图</span>
+                    </div>
+                    <div className="icon-item">
+                        <MoreOutline fontSize={20} color="#333" />
+                        <span className="icon-text">更多</span>
                     </div>
                 </div>
             </div>

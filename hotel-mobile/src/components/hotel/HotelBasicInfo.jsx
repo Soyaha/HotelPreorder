@@ -2,11 +2,12 @@ import React from 'react'
 import { Tag } from 'antd-mobile'
 import './HotelDetail.css'
 
-const HotelBasicInfo = ({ name, score, scoreLabel, tags, details, area }) => {
+const HotelBasicInfo = ({ name, englishName, score, scoreLabel, tags, details, area }) => {
   return (
     <div className="hotel-info-card">
         <div className="hotel-name-title">
             <div className="hotel-cn-name">{name}</div>
+            {englishName && <div className="hotel-en-name" style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>{englishName}</div>}
             {/* Stars can be added here if needed */}
         </div>
 

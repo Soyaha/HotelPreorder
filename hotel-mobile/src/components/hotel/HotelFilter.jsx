@@ -77,7 +77,7 @@ export default function HotelFilter({ activePopup, setActivePopup, onFilterChang
   const [popupTopOffset, setPopupTopOffset] = useState(98)
   const [filterValues, setFilterValues] = useState({
     sort: 'score',
-    location: { group: '直线距离', option: '500米内' },
+    location: { group: '直线距离', option: null },
     price: {
       priceRange: [0, 750],
       pricePreset: '¥0-750',
