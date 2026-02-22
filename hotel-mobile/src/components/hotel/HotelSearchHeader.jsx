@@ -99,7 +99,7 @@ const HotelSearchHeader = ({
 
                 {/* City */}
                 <div className="city-display">
-                    <span className="city-text">{cityText || '北京市'}</span>
+                    <span className="city-text">{cityText || '上海市'}</span>
                 </div>
 
                 {/* Date & Guest */}
