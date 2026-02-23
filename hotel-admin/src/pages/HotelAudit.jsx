@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Table, Tag, Button, Space, Modal, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 const HotelAudit = () => {
     const navigate = useNavigate();
     const [hotels, setHotels] = useState([]);
@@ -16,8 +18,7 @@ const HotelAudit = () => {
     const fetchHotels = async () => {
         setLoading(true);
         try {
-            // Update to Node.js backend URL
-            let url = `http://localhost:3001/api/hotels?`;
+            let url = `${API_BASE_URL}/api/hotels?`;
             if (user.role === 'merchant') url += `role=merchant&username=${user.username}`;
             else url += `role=${user.role}`;
 
@@ -45,7 +46,7 @@ const HotelAudit = () => {
 
     const handleStatus = async (id, status, reason = '') => {
         try {
-            const res = await fetch('http://localhost:3001/api/hotels/status', {
+            const res = await fetch(`${API_BASE_URL}/api/hotels/status`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, status, reason })

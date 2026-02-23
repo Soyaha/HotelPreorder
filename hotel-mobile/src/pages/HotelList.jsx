@@ -7,7 +7,7 @@ import { SearchContext } from '../App'
 import { InfiniteScroll, Toast } from 'antd-mobile'
 import '../components/hotel/HotelList.css'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 const PAGE_SIZE = 4
 
 const HotelList = () => {

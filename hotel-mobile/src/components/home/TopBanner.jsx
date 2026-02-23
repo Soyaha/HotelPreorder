@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Swiper, Image } from 'antd-mobile'
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const TopBanner = () => {
   const navigate = useNavigate()

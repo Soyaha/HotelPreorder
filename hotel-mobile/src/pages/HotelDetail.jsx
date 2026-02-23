@@ -11,7 +11,7 @@ import '../components/hotel/HotelDetail.css'
 import FilterTagsSection from '../components/hotel/FilterTagsSection'
 import { SearchContext } from '../App'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const HotelDetail = () => {
     const navigate = useNavigate();
