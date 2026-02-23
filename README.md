@@ -13,6 +13,10 @@
 - 管理端（PC）：https://admin.soyaha.site
 - 移动端（H5）：https://soyaha.site
 
+## 文档导航
+
+- 接口文档：[`docs/api_interface.md`](docs/api_interface.md)
+
 > 当前线上方案为“前端同域 `/api` 反向代理到后端服务”，前端无需写死服务器 IP。
 
 ---
@@ -22,7 +26,6 @@
 ```text
 HotelPreorder/
 ├─ README.md
-├─ README参考.md
 ├─ hotel-server/                           # 后端服务（Node.js + Express）
 │  ├─ index.js                             # 服务入口，路由与业务逻辑
 │  ├─ package.json                         # 后端依赖与脚本
