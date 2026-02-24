@@ -11,7 +11,142 @@
   - 管理端：`https://admin.soyaha.site/api`
   - 移动端：`https://soyaha.site/api`
 - 数据格式：`Content-Type: application/json`
-- 认证方式：当前版本未接入 JWT，主要通过请求参数中的 `role`、`username` 做访问控制
+- 认证方式：`accessKey + secretKey` 签名鉴权（部分接口）
+
+### 1.1 签名鉴权规则（管理端接口）
+
+受保护接口需携带请求头：
+
+| Header | 必填 | 说明 |
+|---|---|---|
+| accessKey | 是 | 用户 AK（登录后下发） |
+| nonce | 是 | 随机数，要求为数字且 `0 ~ 100000` |
+| timestamp | 是 | 毫秒时间戳，允许与服务端时间误差不超过 5 分钟 |
+| body | 是 | `encodeURIComponent(JSON.stringify(payload))` |
+| sign | 是 | 签名值，算法见下 |
+
+签名算法：
+
+```text
+sign = SHA256(`${body}.${secretKey}`)
+```
+
+其中：
+
+- `body` 为原始 JSON 字符串（未 URL 编码前）
+- `secretKey` 由登录接口返回
+
+说明：
+
+- `GET /api/hotels/public`、`GET /api/hotels/:id`（游客模式）不要求签名
+- `GET /api/hotels/:id` 若带 `accessKey`，会按用户角色判断可见性
+
+### 1.2 前端生成签名头（可直接复制）
+
+> 用途：PPT 演示“管理端如何生成签名并访问受保护接口”
+
+```javascript
+// 1) 计算 SHA256
+const toHex = (buffer) => Array.from(new Uint8Array(buffer))
+  .map((item) => item.toString(16).padStart(2, '0'))
+  .join('');
+
+const sha256 = async (text) => {
+  const encoded = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest('SHA-256', encoded);
+  return toHex(digest);
+};
+
+// 2) 生成签名头
+const buildSignedHeaders = async ({ accessKey, secretKey, payload = {} }) => {
+  const body = JSON.stringify(payload);
+  const nonce = `${Math.floor(Math.random() * 100000)}`;
+  const timestamp = `${Date.now()}`;
+  const sign = await sha256(`${body}.${secretKey}`);
+
+  return {
+    'Content-Type': 'application/json',
+    accessKey,
+    nonce,
+    timestamp,
+    body: encodeURIComponent(body),
+    sign,
+  };
+};
+```
+
+#### 示例 A：查询管理端酒店列表（GET /api/hotels）
+
+```javascript
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+const payload = {}; // GET 请求时 body 可传空对象
+const headers = await buildSignedHeaders({
+  accessKey: user.accessKey,
+  secretKey: user.secretKey || user.secrectKey,
+  payload,
+});
+
+const res = await fetch('/api/hotels?status=pending', {
+  method: 'GET',
+  headers,
+});
+const data = await res.json();
+console.log(data);
+```
+
+#### 示例 B：管理员审核通过（POST /api/hotels/status）
+
+```javascript
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+const payload = {
+  id: 12,
+  status: 'approved',
+  reason: '',
+};
+const headers = await buildSignedHeaders({
+  accessKey: user.accessKey,
+  secretKey: user.secretKey || user.secrectKey,
+  payload,
+});
+
+const res = await fetch('/api/hotels/status', {
+  method: 'POST',
+  headers,
+  body: JSON.stringify(payload),
+});
+const data = await res.json();
+console.log(data);
+```
+
+#### 示例 C：商户提交酒店（POST /api/hotels）
+
+```javascript
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+const payload = {
+  name: '演示酒店',
+  address: '上海市浦东新区世纪大道100号',
+  price: 399,
+  star: 4,
+  tags: ['地铁近', '商务出行'],
+  facilities: ['WIFI', '健身房'],
+  rooms: [
+    { name: '标准大床房', description: '1张1.8米床 | 28m²', price: 399 },
+  ],
+};
+const headers = await buildSignedHeaders({
+  accessKey: user.accessKey,
+  secretKey: user.secretKey || user.secrectKey,
+  payload,
+});
+
+const res = await fetch('/api/hotels', {
+  method: 'POST',
+  headers,
+  body: JSON.stringify(payload),
+});
+const data = await res.json();
+console.log(data);
+```
 
 ---
 
@@ -43,11 +178,11 @@
 | 系统 | GET | `/api/health` | 健康检查 |
 | 认证 | POST | `/api/login` | 登录 |
 | 认证 | POST | `/api/register` | 注册 |
-| 酒店 | GET | `/api/hotels` | 管理端酒店列表（按角色） |
+| 酒店 | GET | `/api/hotels` | 管理端酒店列表（需签名） |
 | 酒店 | GET | `/api/hotels/public` | 移动端公开酒店列表 |
 | 酒店 | GET | `/api/hotels/:id` | 酒店详情（按角色） |
-| 酒店 | POST | `/api/hotels` | 新增/更新酒店 |
-| 审核 | POST | `/api/hotels/status` | 酒店状态流转 |
+| 酒店 | POST | `/api/hotels` | 新增/更新酒店（需签名，商户） |
+| 审核 | POST | `/api/hotels/status` | 酒店状态流转（需签名，管理员） |
 
 ---
 
@@ -111,7 +246,10 @@ Easy Stay Hotel Reservation API is running
   "user": {
     "username": "admin",
     "role": "admin",
-    "name": "系统管理员"
+    "name": "系统管理员",
+    "accessKey": "ak_admin_xxx",
+    "secretKey": "sk_admin_xxx",
+    "secrectKey": "sk_admin_xxx"
   }
 }
 ```
@@ -165,21 +303,25 @@ Easy Stay Hotel Reservation API is running
 
 - 用途：查询酒店列表（管理端主接口）
 - 说明：返回值是数组，不是 `{ success }` 包装
+- 权限：需签名；仅 `admin/merchant` 可访问
 
 **Query 参数**
 
 | 参数 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| role | string | 否 | `admin` / `merchant` / 不传 |
-| username | string | 条件必填 | 当 `role=merchant` 时建议传入，用于筛选本人酒店 |
 | status | string | 否 | 状态筛选：`pending/approved/rejected/offline` |
 | q | string | 否 | 关键字搜索（name/englishName/address/area/description） |
 
 **权限/可见性规则**
 
-- `role=admin`：可见全部酒店
-- `role=merchant`：只看 `owner=username` 的酒店
-- 不传或其他角色：只返回 `approved` 酒店
+- `admin`：可见全部酒店
+- `merchant`：仅可见 `owner=当前登录用户` 的酒店
+
+**失败示例**
+
+- 403：`缺少鉴权请求头`
+- 403：`签名校验失败`
+- 403：`无权限访问`
 
 **成功示例**
 
@@ -231,18 +373,17 @@ Easy Stay Hotel Reservation API is running
 |---|---|---|---|
 | id | number | 是 | 酒店 ID |
 
-**Query 参数**
+**Header（可选）**
 
-| 参数 | 类型 | 必填 | 说明 |
-|---|---|---|---|
-| role | string | 否 | `admin` / `merchant` / 不传 |
-| username | string | 条件必填 | 当 `role=merchant` 时用于校验归属 |
+| Header | 必填 | 说明 |
+|---|---|---|
+| accessKey | 否 | 带上后按用户角色判权；不带按游客规则 |
 
 **可见性规则**
 
-- `admin`：可查看任意酒店
-- `merchant`：仅可查看自己 `owner=username` 的酒店
-- 未携带角色：仅可查看 `approved` 酒店
+- `admin`（通过 `accessKey` 识别）：可查看任意酒店
+- `merchant`（通过 `accessKey` 识别）：仅可查看自己录入的酒店
+- 游客（不带 `accessKey`）：仅可查看 `approved` 酒店
 
 **成功示例**
 
@@ -269,6 +410,7 @@ Easy Stay Hotel Reservation API is running
 ### 4.8 POST /api/hotels
 
 - 用途：新增或更新酒店
+- 权限：需签名；仅 `merchant` 可访问
 - 规则：
   - 不传 `id` => 新增酒店
   - 传 `id` => 更新酒店（仅 owner 本人可更新）
@@ -281,7 +423,6 @@ Easy Stay Hotel Reservation API is running
 | id | number | 否 | 更新时传 |
 | name | string | 是 | 酒店名 |
 | address | string | 是 | 地址 |
-| owner | string | 是 | 录入商户用户名 |
 | englishName | string | 否 | 英文名 |
 | area | string | 否 | 区域 |
 | image | string | 否 | 主图 |
@@ -300,7 +441,6 @@ Easy Stay Hotel Reservation API is running
 {
   "name": "测试酒店",
   "address": "上海市浦东新区xx路",
-  "owner": "merchant",
   "price": 399,
   "images": [],
   "rooms": []
@@ -323,15 +463,17 @@ Easy Stay Hotel Reservation API is running
 **失败示例**
 
 - 400：`name 和 address 为必填项`
-- 400：`owner 为必填项`
 - 404：`酒店不存在`（更新时）
 - 403：`只能修改自己录入的酒店`
+- 403：`无权限访问`
+- 403：`签名校验失败`
 
 ---
 
 ### 4.9 POST /api/hotels/status
 
 - 用途：管理员审核状态流转
+- 权限：需签名；仅 `admin` 可访问
 
 **请求体**
 
@@ -368,6 +510,8 @@ Easy Stay Hotel Reservation API is running
 
 - 400：`参数不合法`
 - 404：`酒店不存在`
+- 403：`无权限访问`
+- 403：`签名校验失败`
 
 ---
 

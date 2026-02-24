@@ -40,6 +40,9 @@
 | password | string | 是 | 密码（当前为明文，后续建议加密） |
 | role | string | 是 | `admin` 或 `merchant` |
 | name | string | 是 | 显示名称 |
+| accessKey | string | 是 | AK，用于接口请求头鉴权 |
+| secretKey | string | 是 | SK，用于签名计算（服务端校验） |
+| secrectKey | string | 否 | 兼容字段（同 secretKey） |
 
 示例：
 
@@ -48,7 +51,10 @@
   "username": "merchant",
   "password": "123",
   "role": "merchant",
-  "name": "希尔顿酒店集团"
+  "name": "希尔顿酒店集团",
+  "accessKey": "ak_merchant_xxx",
+  "secretKey": "sk_merchant_xxx",
+  "secrectKey": "sk_merchant_xxx"
 }
 ```
 
@@ -134,6 +140,80 @@
 
 备注：当前 `rooms` 是内嵌结构，不是独立集合，因此跨酒店统计房型时需要遍历酒店数组。
 
+### 4.1 鉴权静态模型（JSON 运行态）
+
+- `users.accessKey (1) -> (1) users.secretKey`
+- 受保护接口使用如下规则进行校验：
+  - `sign = SHA256(body + '.' + secretKey)`
+  - `accessKey` 定位用户
+  - `nonce` 范围校验（0~100000）
+  - `timestamp` 时效校验（5 分钟）
+
+说明：
+
+- `secretKey` / `secrectKey` 同值并存，用于兼容历史字段拼写
+- 当前仅管理端敏感接口要求签名，公开接口可匿名访问
+
+### 4.2 数据库静态模型（ER）
+
+> 以下为基于 `hotel-server/sql/init.sql` 的静态模型（MySQL 预案）：
+
+```mermaid
+erDiagram
+  USERS {
+    BIGINT id PK
+    VARCHAR username UK
+    VARCHAR password
+    ENUM role
+    VARCHAR display_name
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  HOTELS {
+    BIGINT id PK
+    VARCHAR name
+    VARCHAR image
+    VARCHAR address
+    VARCHAR area
+    DECIMAL price
+    DECIMAL score
+    VARCHAR score_label
+    TINYINT star
+    ENUM status
+    TEXT description
+    JSON facilities_json
+    JSON tags_json
+    JSON details_json
+    VARCHAR owner_username FK
+    VARCHAR reject_reason
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  ROOMS {
+    BIGINT id PK
+    BIGINT hotel_id FK
+    VARCHAR name
+    VARCHAR description
+    DECIMAL price
+    TINYINT breakfast_included
+    TINYINT refundable
+    ENUM bed_type
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  USERS ||--o{ HOTELS : "username = owner_username"
+  HOTELS ||--o{ ROOMS : "id = hotel_id"
+```
+
+关系说明：
+
+- 一个用户（商户）可拥有多家酒店（`USERS 1:N HOTELS`）
+- 一家酒店可包含多个房型（`HOTELS 1:N ROOMS`）
+- `rooms` 设有 `ON DELETE CASCADE`，删除酒店时会级联删除对应房型
+
 ---
 
 ## 5. SQL 预案（MySQL）
@@ -162,6 +242,8 @@
 | users.password | users.password |
 | users.role | users.role |
 | users.name | users.display_name |
+| users.accessKey | users.access_key *(建议新增)* |
+| users.secretKey | users.secret_key *(建议新增)* |
 | hotels.id | hotels.id |
 | hotels.name | hotels.name |
 | hotels.image | hotels.image |
@@ -189,6 +271,7 @@
 建议至少增加以下索引：
 
 - `users(username)`（唯一，已在脚本）
+- `users(access_key)`（唯一，建议新增）
 - `hotels(status)`
 - `hotels(owner_username)`
 - `hotels(updated_at)`
@@ -210,5 +293,5 @@
 
 ## 8. 版本说明
 
-- 文档版本：v1.0
-- 适配后端版本：当前 `hotel-server/index.js`（2026-02-23）
+- 文档版本：v1.1
+- 适配后端版本：当前 `hotel-server/index.js`（2026-02-24）

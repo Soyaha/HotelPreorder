@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Tag, Button, Space, Modal, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+import { signedRequest } from '../utils/authRequest';
 
 const HotelAudit = () => {
     const navigate = useNavigate();
@@ -18,14 +17,8 @@ const HotelAudit = () => {
     const fetchHotels = async () => {
         setLoading(true);
         try {
-            let url = `${API_BASE_URL}/api/hotels?`;
-            if (user.role === 'merchant') url += `role=merchant&username=${user.username}`;
-            else url += `role=${user.role}`;
-
-            const res = await fetch(url);
+            const res = await signedRequest('/api/hotels', { method: 'GET' });
             const data = await res.json();
-            // Node server returns array directly or { success: false } ? 
-            // Looking at index.js, it returns array directly for /api/hotels
             const list = Array.isArray(data) ? data : [];
             const statusOrder = { pending: 0, rejected: 1, approved: 2, offline: 3 };
             list.sort((a, b) => {
@@ -46,10 +39,9 @@ const HotelAudit = () => {
 
     const handleStatus = async (id, status, reason = '') => {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/hotels/status`, {
+            const res = await signedRequest('/api/hotels/status', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, status, reason })
+                payload: { id, status, reason },
             });
             const data = await res.json();
             if(data.success) {

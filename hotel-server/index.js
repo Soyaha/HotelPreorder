@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -12,6 +13,9 @@ const DEFAULT_HOTEL_DETAILS = [
     { label: '风格', value: '现代' },
     { label: '服务', value: '优质' },
 ];
+
+const NONCE_MAX = 100000;
+const REQUEST_EXPIRE_MS = 5 * 60 * 1000;
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
@@ -25,9 +29,30 @@ const ensureDir = (targetPath) => {
 
 const defaultState = () => ({
     users: [
-        { username: 'admin', password: '123', role: 'admin', name: '系统管理员' },
-        { username: 'merchant', password: '123', role: 'merchant', name: '希尔顿酒店集团' },
-        { username: 'merchant2', password: '123', role: 'merchant', name: '如家酒店连锁' },
+        {
+            username: 'admin',
+            password: '123',
+            role: 'admin',
+            name: '系统管理员',
+            accessKey: 'ak_admin_001',
+            secretKey: 'sk_admin_001',
+        },
+        {
+            username: 'merchant',
+            password: '123',
+            role: 'merchant',
+            name: '希尔顿酒店集团',
+            accessKey: 'ak_merchant_001',
+            secretKey: 'sk_merchant_001',
+        },
+        {
+            username: 'merchant2',
+            password: '123',
+            role: 'merchant',
+            name: '如家酒店连锁',
+            accessKey: 'ak_merchant_002',
+            secretKey: 'sk_merchant_002',
+        },
     ],
     hotels: [
         {
@@ -213,6 +238,96 @@ const persistState = () => {
     fs.writeFileSync(DB_PATH, JSON.stringify(state, null, 2), 'utf-8');
 };
 
+const randomKey = (prefix) => `${prefix}_${crypto.randomBytes(12).toString('hex')}`;
+
+const ensureUserSecurityFields = () => {
+    let changed = false;
+    const users = Array.isArray(state.users) ? state.users : [];
+    const accessKeySet = new Set();
+    const nextUsers = users.map((user, index) => {
+        const nextUser = { ...user };
+        if (!nextUser.accessKey || accessKeySet.has(nextUser.accessKey)) {
+            nextUser.accessKey = randomKey(`ak_${nextUser.username || `user${index + 1}`}`);
+            changed = true;
+        }
+        accessKeySet.add(nextUser.accessKey);
+        if (!nextUser.secretKey) {
+            nextUser.secretKey = randomKey(`sk_${nextUser.username || `user${index + 1}`}`);
+            changed = true;
+        }
+        if (nextUser.secrectKey !== nextUser.secretKey) {
+            nextUser.secrectKey = nextUser.secretKey;
+            changed = true;
+        }
+        return nextUser;
+    });
+
+    if (changed) {
+        state.users = nextUsers;
+        persistState();
+    }
+};
+
+ensureUserSecurityFields();
+
+const genSign = (body, secretKey) => crypto.createHash('sha256').update(`${body}.${secretKey}`).digest('hex');
+
+const getSignedBody = (req) => {
+    const bodyHeader = req.headers.body;
+    if (typeof bodyHeader !== 'string') return '';
+    try {
+        return decodeURIComponent(bodyHeader);
+    } catch (error) {
+        return '';
+    }
+};
+
+const authMiddleware = (req, res, next) => {
+    const accessKey = req.headers.accesskey;
+    const sign = req.headers.sign;
+    const nonce = req.headers.nonce;
+    const timestamp = req.headers.timestamp;
+    const body = getSignedBody(req);
+
+    if (!accessKey || !sign || !nonce || !timestamp) {
+        return res.status(403).json({ success: false, message: '缺少鉴权请求头' });
+    }
+
+    const nonceNum = Number(nonce);
+    if (!Number.isFinite(nonceNum) || nonceNum > NONCE_MAX || nonceNum < 0) {
+        return res.status(403).json({ success: false, message: '无效 nonce' });
+    }
+
+    const timestampNum = Number(timestamp);
+    if (!Number.isFinite(timestampNum) || Math.abs(Date.now() - timestampNum) > REQUEST_EXPIRE_MS) {
+        return res.status(403).json({ success: false, message: '请求已过期' });
+    }
+
+    const authUser = state.users.find((item) => item.accessKey === accessKey);
+    if (!authUser || !authUser.secretKey) {
+        return res.status(403).json({ success: false, message: 'accessKey 无效' });
+    }
+
+    const expectedSign = genSign(body, authUser.secretKey);
+    if (expectedSign !== sign) {
+        return res.status(403).json({ success: false, message: '签名校验失败' });
+    }
+
+    req.authUser = authUser;
+    next();
+};
+
+const requireRole = (roles) => (req, res, next) => {
+    const authUser = req.authUser;
+    if (!authUser) {
+        return res.status(403).json({ success: false, message: '请先登录' });
+    }
+    if (!roles.includes(authUser.role)) {
+        return res.status(403).json({ success: false, message: '无权限访问' });
+    }
+    next();
+};
+
 const isValidRole = (role) => ['admin', 'merchant'].includes(role);
 const isValidStatus = (status) => ['pending', 'approved', 'rejected', 'offline'].includes(status);
 
@@ -233,7 +348,17 @@ app.post('/api/login', (req, res) => {
     if (!user) {
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
-    return res.json({ success: true, user: { username: user.username, role: user.role, name: user.name } });
+    return res.json({
+        success: true,
+        user: {
+            username: user.username,
+            role: user.role,
+            name: user.name,
+            accessKey: user.accessKey,
+            secretKey: user.secretKey,
+            secrectKey: user.secretKey,
+        },
+    });
 });
 
 app.post('/api/register', (req, res) => {
@@ -245,13 +370,23 @@ app.post('/api/register', (req, res) => {
         return res.json({ success: false, message: 'User already exists' });
     }
     const finalRole = isValidRole(role) ? role : 'merchant';
-    state.users.push({ username, password, role: finalRole, name: username });
+    state.users.push({
+        username,
+        password,
+        role: finalRole,
+        name: username,
+        accessKey: randomKey(`ak_${username}`),
+        secretKey: randomKey(`sk_${username}`),
+        secrectKey: '',
+    });
+    state.users[state.users.length - 1].secrectKey = state.users[state.users.length - 1].secretKey;
     persistState();
     return res.json({ success: true, message: 'Register success' });
 });
 
-app.get('/api/hotels', (req, res) => {
-    const { role, username, status, q } = req.query;
+app.get('/api/hotels', authMiddleware, requireRole(['admin', 'merchant']), (req, res) => {
+    const { status, q } = req.query;
+    const { role, username } = req.authUser;
     let result = [...state.hotels];
 
     if (role === 'merchant') {
@@ -288,7 +423,10 @@ app.get('/api/hotels/public', (req, res) => {
 
 app.get('/api/hotels/:id', (req, res) => {
     const id = Number(req.params.id);
-    const { role, username } = req.query;
+    const accessKey = req.headers.accesskey;
+    const authUser = accessKey ? state.users.find((item) => item.accessKey === accessKey) : null;
+    const role = authUser?.role;
+    const username = authUser?.username;
     const hotel = state.hotels.find((item) => item.id === id);
     if (!hotel) {
         return res.status(404).json({ success: false, message: '酒店不存在' });
@@ -309,20 +447,18 @@ app.get('/api/hotels/:id', (req, res) => {
     return res.json({ success: true, hotel });
 });
 
-app.post('/api/hotels', (req, res) => {
+app.post('/api/hotels', authMiddleware, requireRole(['merchant']), (req, res) => {
     const payload = req.body || {};
     const now = new Date().toISOString();
+    const authUser = req.authUser;
 
     if (!payload.name || !payload.address) {
         return res.status(400).json({ success: false, message: 'name 和 address 为必填项' });
     }
-    if (!payload.owner) {
-        return res.status(400).json({ success: false, message: 'owner 为必填项' });
-    }
-
     const parsedPrice = Number(payload.price || 0);
     const normalizedPayload = {
         ...payload,
+        owner: authUser.username,
         price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
         images: Array.isArray(payload.images) ? payload.images.filter(Boolean) : [],
         facilities: Array.isArray(payload.facilities) ? payload.facilities : [],
@@ -338,7 +474,7 @@ app.post('/api/hotels', (req, res) => {
             return res.status(404).json({ success: false, message: '酒店不存在' });
         }
         const oldHotel = state.hotels[index];
-        if (oldHotel.owner !== normalizedPayload.owner) {
+        if (oldHotel.owner !== authUser.username) {
             return res.status(403).json({ success: false, message: '只能修改自己录入的酒店' });
         }
 
@@ -385,7 +521,7 @@ app.post('/api/hotels', (req, res) => {
     return res.json({ success: true, hotel: normalizedNewHotel });
 });
 
-app.post('/api/hotels/status', (req, res) => {
+app.post('/api/hotels/status', authMiddleware, requireRole(['admin']), (req, res) => {
     const { id, status, reason } = req.body || {};
     const hotelId = Number(id);
     if (!hotelId || !isValidStatus(status)) {

@@ -3,11 +3,10 @@ import { Form, Input, Button, InputNumber, Select, DatePicker, message, Card, Sp
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { signedRequest } from '../utils/authRequest';
 
 const { TextArea } = Input;
 const { Option } = Select;
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-
 const HotelEntry = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -103,7 +102,6 @@ const HotelEntry = () => {
 
             const payload = {
                 ...values,
-                owner: user.username,
                 id: isEditMode ? editingHotel.id : undefined,
                 openDate: values.openDate ? values.openDate.format('YYYY-MM-DD') : undefined,
                 image: mergedImages[0] || '',
@@ -114,12 +112,9 @@ const HotelEntry = () => {
                 rooms: (values.rooms || []).filter((room) => room?.name && room?.price),
             };
 
-            const res = await fetch(`${API_BASE_URL}/api/hotels`, {
+            const res = await signedRequest('/api/hotels', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
+                payload,
             });
 
             const rawText = await res.text();
