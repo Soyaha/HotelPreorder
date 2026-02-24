@@ -16,6 +16,7 @@
 ## 文档导航
 
 - 接口文档：[`docs/api_interface.md`](docs/api_interface.md)
+- 数据库文档：[`docs/database_schema.md`](docs/database_schema.md)
 
 > 当前线上方案为“前端同域 `/api` 反向代理到后端服务”，前端无需写死服务器 IP。
 
