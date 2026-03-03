@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { Suspense, lazy, useMemo, useState } from 'react'
 import dayjs from 'dayjs'
 import { TabBar, NavBar, Button, Input, Card, Image, Tag } from 'antd-mobile'
 import {
@@ -16,11 +16,12 @@ import DateSection from './components/home/DateSection'
 import RoomSection from './components/home/RoomSection'
 import FilterTagsSection from './components/home/FilterTagsSection'
 import SearchButton from './components/home/SearchButton'
-import HotelList from './pages/HotelList'
-import HotelDetail from './pages/HotelDetail'
-import HotelMap from './components/hotel/HotelMap'
+const HotelList = lazy(() => import('./pages/HotelList'))
+const HotelDetail = lazy(() => import('./pages/HotelDetail'))
+const HotelMap = lazy(() => import('./components/hotel/HotelMap'))
 
 export const SearchContext = React.createContext(null)
+const RouteFallback = () => <div style={{ padding: 16 }}>页面加载中...</div>
 
 const Home = () => {
     const navigate = useNavigate();
@@ -120,13 +121,15 @@ function Layout() {
     return (
         <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#f5f5f5' }}>
             <div style={{ flex: 1, overflow: 'auto' }}>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/list" element={<HotelList />} />
-                    <Route path="/detail/:id" element={<HotelDetail />} />
-                    <Route path="/map" element={<HotelMap />} />
-                    <Route path="/me" element={<Me />} />
-                </Routes>
+                <Suspense fallback={<RouteFallback />}>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/list" element={<HotelList />} />
+                        <Route path="/detail/:id" element={<HotelDetail />} />
+                        <Route path="/map" element={<HotelMap />} />
+                        <Route path="/me" element={<Me />} />
+                    </Routes>
+                </Suspense>
             </div>
             {showTabBar && (
                 <TabBar activeKey={pathname} onChange={value => navigate(value)} style={{ background: '#fff', borderTop: '1px solid #eee' }}>

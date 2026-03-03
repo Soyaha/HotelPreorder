@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { Layout, Menu, theme, Button } from 'antd';
 import { UserOutlined, VideoCameraOutlined, UploadOutlined, LogoutOutlined } from '@ant-design/icons';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
-import HotelEntry from './pages/HotelEntry';
-import HotelAudit from './pages/HotelAudit';
+
+const Login = lazy(() => import('./pages/Login'));
+const HotelEntry = lazy(() => import('./pages/HotelEntry'));
+const HotelAudit = lazy(() => import('./pages/HotelAudit'));
 
 const { Header, Sider, Content } = Layout;
 
 const Dashboard = () => <div style={{padding: 24, background: '#fff'}}><h2>欢迎使用易宿酒店管理后台</h2><p>请在左侧菜单选择功能。</p></div>;
+const RouteFallback = () => <div style={{ padding: 24 }}>页面加载中...</div>;
 
 // Component to handle layout and protection
 const MainLayout = ({ user, onLogout }) => {
@@ -65,12 +67,14 @@ const MainLayout = ({ user, onLogout }) => {
                 </Header>
                 <Content style={{ margin: '24px 16px 0' }}>
                     <div style={{ minHeight: 360 }}>
-                        <Routes>
-                            <Route path="/" element={<Dashboard />} />
-                            <Route path="/entry" element={user.role === 'merchant' ? <HotelEntry /> : <Navigate to="/" />} />
-                            <Route path="/my-hotels" element={user.role === 'merchant' ? <HotelAudit /> : <Navigate to="/" />} />
-                            <Route path="/audit" element={user.role === 'admin' ? <HotelAudit /> : <Navigate to="/" />} />
-                        </Routes>
+                        <Suspense fallback={<RouteFallback />}>
+                            <Routes>
+                                <Route path="/" element={<Dashboard />} />
+                                <Route path="/entry" element={user.role === 'merchant' ? <HotelEntry /> : <Navigate to="/" />} />
+                                <Route path="/my-hotels" element={user.role === 'merchant' ? <HotelAudit /> : <Navigate to="/" />} />
+                                <Route path="/audit" element={user.role === 'admin' ? <HotelAudit /> : <Navigate to="/" />} />
+                            </Routes>
+                        </Suspense>
                     </div>
                 </Content>
             </Layout>
@@ -92,11 +96,13 @@ const App = () => {
 
   return (
     <Router>
-        {!user ? (
-            <Login onLogin={handleLogin} />
-        ) : (
-            <MainLayout user={user} onLogout={handleLogout} />
-        )}
+        <Suspense fallback={<RouteFallback />}>
+            {!user ? (
+                <Login onLogin={handleLogin} />
+            ) : (
+                <MainLayout user={user} onLogout={handleLogout} />
+            )}
+        </Suspense>
     </Router>
   );
 };
